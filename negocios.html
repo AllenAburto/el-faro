@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Faro - Negocios</title>
+    <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body>
+
+    <header class="encabezado">
+        <div class="encabezado__contenedor">
+            <img class="encabezado__imagen-logo" src="./image/logo.png" alt="El Faro - La verdad más cerca de ti">
+        </div>
+    </header>
+
+    <nav class="navegacion">
+        <div class="navegacion__contenedor">
+            <ul class="navegacion__lista">
+                <li class="navegacion__elemento">
+                    <a class="navegacion__enlace" href="index.html">Inicio</a>
+                </li>
+                <li class="navegacion__elemento">
+                    <a class="navegacion__enlace" href="deporte.html">Deporte</a>
+                </li>
+                <li class="navegacion__elemento">
+                    <a class="navegacion__enlace navegacion__enlace--activo" href="negocios.html">Negocios</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="seccion-portada">
+        <div class="seccion-portada__contenedor">
+            <h1 class="seccion-portada__titulo">Negocios</h1>
+            <p class="seccion-portada__fecha">Lunes, 7 de abril de 2026</p>
+        </div>
+    </section>
+
+    <main class="contenido-principal">
+
+        <section class="seccion-negocios">
+            <h2 class="seccion-negocios__titulo">Noticias de Negocios</h2>
+            <table class="tabla-noticias">
+                <thead class="tabla-noticias__cabecera">
+                    <tr>
+                        <th class="tabla-noticias__celda-encabezado tabla-noticias__celda--imagen">Imagen</th>
+                        <th class="tabla-noticias__celda-encabezado tabla-noticias__celda--titulo">Título</th>
+                        <th class="tabla-noticias__celda-encabezado tabla-noticias__celda--categoria">Categoría</th>
+                        <th class="tabla-noticias__celda-encabezado">Texto del artículo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="tabla-noticias__fila">
+                        <td class="tabla-noticias__celda tabla-noticias__celda--imagen">
+                            <img class="articulo__imagen" src="./image/negocio1.png" alt="Sector inmobiliario en Chile">
+                        </td>
+                        <td class="tabla-noticias__celda tabla-noticias__celda--titulo">
+                            <span class="articulo__titulo">Sector inmobiliario en Chile proyecta repunte en 2026: Ventas de viviendas podrían subir hasta 30%</span>
+                        </td>
+                        <td class="tabla-noticias__celda tabla-noticias__celda--categoria">
+                            <span class="articulo__categoria">Inmobiliario</span>
+                        </td>
+                        <td class="tabla-noticias__celda">
+                            <p class="articulo__texto">Un informe del gremio de la construcción proyecta un crecimiento de 4,8% en la inversión del sector en 2026, impulsado por mejores condiciones de financiamiento, subsidios y una reactivación de la demanda.</p>
+                            <p class="articulo__texto">El sector inmobiliario en Chile comienza a mostrar señales de recuperación, con proyecciones que anticipan un repunte tanto en la inversión como en la venta de viviendas durante 2026. El gremio estima que las ventas podrían aumentar hasta un 30% anual, en un escenario marcado por una mejora en el acceso al crédito hipotecario y el impulso de políticas públicas como el subsidio a la tasa.</p>
+                        </td>
+                    </tr>
+                    <tr class="tabla-noticias__fila">
+                        <td class="tabla-noticias__celda tabla-noticias__celda--imagen">
+                            <img class="articulo__imagen" src="./image/negocio2.png" alt="Emprendedores de Ovalle">
+                        </td>
+                        <td class="tabla-noticias__celda tabla-noticias__celda--titulo">
+                            <span class="articulo__titulo">Emprendedores de Ovalle fortalecen sus negocios con una masiva jornada de capacitación y fomento</span>
+                        </td>
+                        <td class="tabla-noticias__celda tabla-noticias__celda--categoria">
+                            <span class="articulo__categoria">Emprendimiento</span>
+                        </td>
+                        <td class="tabla-noticias__celda">
+                            <p class="articulo__texto">Con la asistencia de cerca de 50 personas, se llevó a cabo en Ovalle una nueva jornada de apoyo al emprendimiento. El evento, denominado BootCamp y que forma parte del programa "Travesía" de CEDUC UCN, tuvo como objetivo principal descentralizar el acceso a la información técnica y potenciar las ventas de los pequeños negocios de la provincia del Limarí.</p>
+                            <p class="articulo__texto">La actividad, coordinada entre la oficina de Fomento Productivo del municipio y el Centro de Negocios Sercotec, buscó entregar herramientas digitales y de gestión comercial a microempresarios locales a través de asesorías personalizadas y talleres de marketing.</p>
+                        </td>
+                    </tr>
+                    <tr class="tabla-noticias__fila">
+                        <td class="tabla-noticias__celda tabla-noticias__celda--imagen">
+                            <img class="articulo__imagen" src="./image/negocio3.png" alt="In Between McDonald's tecnología">
+                        </td>
+                        <td class="tabla-noticias__celda tabla-noticias__celda--titulo">
+                            <span class="articulo__titulo">In Between McDonald's: La tecnología que ayuda a decidir en qué McDonald's comprar según la fila</span>
+                        </td>
+                        <td class="tabla-noticias__celda tabla-noticias__celda--categoria">
+                            <span class="articulo__categoria">Tecnología</span>
+                        </td>
+                        <td class="tabla-noticias__celda">
+                            <p class="articulo__texto">McDonald's presentó "In Between McDonald's", una iniciativa que busca optimizar la experiencia de los clientes mediante el uso de datos en tiempo real. El proyecto nació de un hallazgo particular en Santiago: en varios sectores comerciales, existen locales de la cadena ubicados a menos de 500 metros de distancia entre sí.</p>
+                            <p class="articulo__texto">La solución consistió en la instalación de pantallas digitales en la vía pública, situadas estratégicamente en el punto medio entre dos sucursales, permitiendo que los transeúntes vean en tiempo real cuántos pedidos están en preparación en cada local y así elegir el que registre menor tiempo de espera.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+    </main>
+
+    <footer class="pie-pagina">
+        <p class="pie-pagina__nombre">EL FARO</p>
+        <p class="pie-pagina__lema">La verdad más cerca de ti</p>
+        <p class="pie-pagina__derechos">&copy; 2026 El Faro. Todos los derechos reservados.</p>
+    </footer>
+
+</body>
+</html>
