@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actividades y Etapas — Seguimiento Nuevos Módulos SIRH</title>
+<meta name="description" content="Detalle de las 294 actividades del cronograma, filtrable por módulo, etapa, fase, responsable y estado.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232a78d6%27/%3E%3Cpath d=%27M8 22 L13 12 L18 18 L24 8%27 stroke=%27white%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header__bar">
+    <div class="app-header__brand">
+      <span class="dot"></span>
+      <span>Seguimiento Nuevos Módulos
+        <small>Proyecto SIRH · MINSAL</small>
+      </span>
+    </div>
+    <nav class="app-nav">
+      <a href="index.html">Resumen</a>
+      <a href="etapas.html">Actividades / Etapas</a>
+      <a href="requerimientos.html">Requerimientos</a>
+      <a href="glosario.html">Glosario &amp; RACI</a>
+    </nav>
+    <div class="app-header__right">
+      <button class="theme-toggle" id="themeToggle" title="Cambiar tema">🌙</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="page-head">
+    <h1>Actividades y Etapas</h1>
+    <p>Detalle de las 294 actividades planificadas en el cronograma del proyecto, con sus 10 etapas,
+       3 fases (I·II·III) y 7 módulos. Usa los filtros y el buscador para acotar la vista.</p>
+  </div>
+
+  <div class="section">
+    <div class="filters">
+      <input type="search" id="fSearch" placeholder="Buscar actividad, componente, entregable…">
+      <select id="fModulo"><option value="">Módulo (todos)</option></select>
+      <select id="fFase"><option value="">Fase (todas)</option></select>
+      <select id="fEtapa"><option value="">Etapa (todas)</option></select>
+      <select id="fEstado"><option value="">Estado (todos)</option></select>
+      <select id="fResponsable"><option value="">Responsable (todos)</option></select>
+      <button class="btn-reset" id="btnReset">Limpiar filtros</button>
+      <span class="count-pill" id="countPill"></span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table" id="etapasTable">
+        <thead>
+          <tr>
+            <th data-key="N°" class="col-num">N°</th>
+            <th data-key="Módulo">Módulo</th>
+            <th data-key="Fase">Fase</th>
+            <th data-key="Etapa">Etapa</th>
+            <th data-key="Componente/Subetapa">Componente / Subetapa</th>
+            <th data-key="Actividades/Tarea">Actividad / Tarea</th>
+            <th data-key="Responsable">Responsable</th>
+            <th data-key="Fecha Inicio Programada">Inicio programado</th>
+            <th data-key="Fecha Fin Máxima">Fin máximo</th>
+            <th data-key="Estado">Estado</th>
+          </tr>
+        </thead>
+        <tbody id="etapasBody"></tbody>
+      </table>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <div class="footnote">
+    Fuente: hoja <code>Etapas</code> del archivo Excel — 294 filas. Haz clic en los encabezados para ordenar la tabla.
+  </div>
+
+</div>
+
+<script src="./js/data.js"></script>
+<script src="./js/common.js"></script>
+<script src="./js/etapas.js"></script>
+</body>
+</html>
