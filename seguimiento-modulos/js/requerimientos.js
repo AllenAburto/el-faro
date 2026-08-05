@@ -55,11 +55,27 @@
       ],
     },
     {
+      id: "calificaciones",
+      label: "Calificaciones",
+      data: D.req_calificaciones,
+      statusKey: "Estado QA",
+      filter1: { key: "Tema", label: "Tema" },
+      filter2: null,
+      searchFields: ["Requerimiento", "Id Requerimiento", "Tema"],
+      columns: [
+        { key: "Id Requerimiento", label: "ID", cls: "nowrap strong" },
+        { key: "Tema", label: "Tema", cls: "nowrap" },
+        { key: "Requerimiento", label: "Requerimiento" },
+        { key: "Forma de Entrega", label: "Origen", cls: "nowrap" },
+        { key: "Estado QA", label: "Estado", badge: true },
+      ],
+    },
+    {
       id: "otros",
       label: "Otros módulos",
       data: [],
       empty: true,
-      note: "Calificaciones, FORCAP, Portal SIRH y VALS",
+      note: "FORCAP, Portal SIRH y VALS",
     },
   ];
 
@@ -67,7 +83,8 @@
   let state = { search: "", f1: "", f2: "", page: 1 };
 
   // ------------------------------------------------------------- summary
-  const totalReq = D.req_autoatencion.length + D.req_rad.length + D.req_lm.length;
+  const totalReq = D.req_autoatencion.length + D.req_rad.length + D.req_lm.length + D.req_calificaciones.length
+    + D.req_forcap.length + D.req_portal.length + D.req_vals.length;
   const aaListo = D.req_autoatencion.filter((r) => r["Estado"] === "Listo").length;
   const radListo = D.req_rad.filter((r) => r["Estado QA"] === "Listo").length;
   document.getElementById("reqSummary").innerHTML = `
@@ -75,7 +92,7 @@
       <span class="stat-tile__icon">📊</span>
       <span class="stat-tile__label">Total requerimientos registrados</span>
       <span class="stat-tile__value">${totalReq}</span>
-      <span class="stat-tile__foot">AutoAtención + RAD + Licencias Médicas</span>
+      <span class="stat-tile__foot">Los 7 módulos del proyecto</span>
     </div>
     <div class="stat-tile stat-tile--accent-good">
       <span class="stat-tile__icon">✅</span>
@@ -91,8 +108,8 @@
     </div>
     <div class="stat-tile">
       <span class="stat-tile__icon">📄</span>
-      <span class="stat-tile__label">Licencias Médicas</span>
-      <span class="stat-tile__value">${D.req_lm.length}</span>
+      <span class="stat-tile__label">LM + Calificaciones</span>
+      <span class="stat-tile__value">${D.req_lm.length + D.req_calificaciones.length}</span>
       <span class="stat-tile__foot">Requerimientos base — estado QA pendiente de carga</span>
     </div>`;
 

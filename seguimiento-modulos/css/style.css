@@ -315,6 +315,7 @@ a { color: var(--series-1); }
 .badge-critical     { color: var(--status-critical); background: color-mix(in srgb, var(--status-critical) 15%, transparent); }
 .badge-neutral      { color: var(--text-secondary);  background: color-mix(in srgb, var(--text-secondary) 14%, transparent); }
 .badge-info         { color: var(--series-1);        background: color-mix(in srgb, var(--series-1) 15%, transparent); }
+.badge-teal         { color: var(--series-3);        background: color-mix(in srgb, var(--series-3) 16%, transparent); }
 
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) .badge-warning { color: #ffd166; }
@@ -340,6 +341,66 @@ a { color: var(--series-1); }
 .meter-row { display: flex; align-items: center; gap: 10px; }
 .meter-row .meter { flex: 1; }
 .meter-row .meter-value { font-size: 12.5px; font-weight: 700; width: 42px; text-align: right; font-variant-numeric: tabular-nums; }
+.meter--lg { height: 12px; flex: 1; }
+.meter-stack { display: flex; flex-direction: column; gap: 16px; }
+.meter-row__label { font-size: 13px; font-weight: 600; color: var(--text-primary); min-width: 240px; }
+.semaforo-icon { font-size: 16px; flex: none; width: 22px; text-align: center; line-height: 1; }
+
+/* --------------------------------------------------------- semáforo cards */
+.semaforo-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.semaforo-card__icon { font-size: 22px; flex: none; line-height: 1; }
+.semaforo-card__body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.semaforo-card__label { font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-muted); }
+.semaforo-card__value { font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ------------------------------------------------------------ download btn */
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--series-1);
+  padding: 7px 13px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: filter 0.15s ease;
+}
+.btn-download:hover { filter: brightness(1.08); }
+
+/* ------------------------------------------------------ componentes destacados */
+.destacado-row { display: flex; flex-direction: column; gap: 12px; }
+.destacado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+.destacado--good { background: color-mix(in srgb, var(--status-good) 10%, transparent); }
+.destacado--warn { background: color-mix(in srgb, var(--status-warning) 14%, transparent); }
+.destacado__icon { font-size: 20px; flex: none; }
+.destacado__label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--text-muted); }
+.destacado__name { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-top: 2px; }
+.destacado__pct { margin-left: auto; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.destacado--good .destacado__pct { color: var(--status-good); }
+.destacado--warn .destacado__pct { color: #8a5c00; }
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .destacado--warn .destacado__pct { color: var(--status-warning); }
+}
+:root[data-theme="dark"] .destacado--warn .destacado__pct { color: var(--status-warning); }
 
 /* ------------------------------------------------------------ bar chart */
 .barchart { display: flex; flex-direction: column; gap: 10px; }
