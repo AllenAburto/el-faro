@@ -5,11 +5,13 @@
 
   const STATUS_TERMS = [
     "COMPLETAR", "Falta planificación", "Programado", "No iniciado",
-    "En curso", "Atrasado", "Finalizado", "Finalizado con desfase",
+    "Inicio anticipado", "En curso", "Inicio retrasado", "Atrasado",
+    "Finalizado anticipado", "Finalizado", "Finalizado con desfase",
   ];
   const STATUS_ICON = {
     "COMPLETAR": "🚩", "Falta planificación": "🧩", "Programado": "📅", "No iniciado": "⏸️",
-    "En curso": "🔄", "Atrasado": "🚨", "Finalizado": "✅", "Finalizado con desfase": "⏱️",
+    "Inicio anticipado": "⏩", "En curso": "🔄", "Inicio retrasado": "🐢", "Atrasado": "🚨",
+    "Finalizado anticipado": "🏁", "Finalizado": "✅", "Finalizado con desfase": "⏱️",
   };
 
   const generalTerms = D.glosario.filter((g) => !STATUS_TERMS.includes(g.Termino));
@@ -48,7 +50,7 @@
 
   // ------------------------------------------------------------- RACI
   const raci = D.raci_ejemplo;
-  const cols = ["Responsable estrategico", "Responsable funcional", "Equipo funcional", "Equipo Técnico", "Key Users"];
+  const cols = ["Resp. Estratégico", "Resp. Funcional", "Equipo Funcional", "Equipo Técnico", "Key Users"];
   const letterClass = { R: "r", A: "a", C: "c", I: "i" };
   function renderLetters(v) {
     if (!v) return "—";

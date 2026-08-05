@@ -75,11 +75,14 @@
   // ------------------------------------------------------------- estados
   const STATUS_MAP = {
     "Finalizado": { cls: "badge-good", css: "var(--status-good)" },
+    "Finalizado anticipado": { cls: "badge-teal", css: "var(--series-3)" },
+    "Finalizado con desfase": { cls: "badge-serious", css: "var(--status-serious)" },
     "En curso": { cls: "badge-info", css: "var(--series-1)" },
+    "Inicio anticipado": { cls: "badge-teal", css: "var(--series-3)" },
+    "Inicio retrasado": { cls: "badge-serious", css: "var(--status-serious)" },
     "Programado": { cls: "badge-neutral", css: "var(--text-secondary)" },
     "No iniciado": { cls: "badge-warning", css: "var(--status-warning)" },
     "Atrasado": { cls: "badge-critical", css: "var(--status-critical)" },
-    "Finalizado con desfase": { cls: "badge-serious", css: "var(--status-serious)" },
     "No planificado": { cls: "badge-serious", css: "var(--status-serious)" },
     "Falta planificación": { cls: "badge-serious", css: "var(--status-serious)" },
     "COMPLETAR": { cls: "badge-critical", css: "var(--status-critical)" },
