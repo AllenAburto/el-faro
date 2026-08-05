@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glosario &amp; RACI — Seguimiento Nuevos Módulos SIRH</title>
+<meta name="description" content="Glosario de términos del proyecto, tabla de módulos y etapas, y matriz RACI de ejemplo.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232a78d6%27/%3E%3Cpath d=%27M8 22 L13 12 L18 18 L24 8%27 stroke=%27white%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header__bar">
+    <div class="app-header__brand">
+      <span class="dot"></span>
+      <span>Seguimiento Nuevos Módulos
+        <small>Proyecto SIRH · MINSAL</small>
+      </span>
+    </div>
+    <nav class="app-nav">
+      <a href="index.html">Resumen</a>
+      <a href="etapas.html">Actividades / Etapas</a>
+      <a href="requerimientos.html">Requerimientos</a>
+      <a href="glosario.html">Glosario &amp; RACI</a>
+    </nav>
+    <div class="app-header__right">
+      <button class="theme-toggle" id="themeToggle" title="Cambiar tema">🌙</button>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="page-head">
+    <h1>Glosario, Tablas &amp; Matriz RACI</h1>
+    <p>Definiciones usadas en el seguimiento del proyecto, los estados posibles de una actividad,
+       la lista de módulos y etapas, y un ejemplo de matriz RACI de responsabilidades.</p>
+  </div>
+
+  <div class="section grid grid-2-1">
+    <div class="card">
+      <p class="card__title">Glosario</p>
+      <dl class="glossary-list" id="glossaryList"></dl>
+    </div>
+
+    <div class="card">
+      <p class="card__title">Tipos de contrato</p>
+      <div id="tiposList" style="margin-bottom:18px"></div>
+      <p class="card__title">Módulos del proyecto</p>
+      <div id="modulosList" style="margin-bottom:18px"></div>
+      <p class="card__title">Etapas del ciclo de vida</p>
+      <div id="etapasList"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section__head">
+      <h2>Estados posibles de una actividad</h2>
+      <span class="hint">Referencia usada en las columnas “Estado” del cronograma</span>
+    </div>
+    <div class="grid grid-4" id="estadosGrid"></div>
+  </div>
+
+  <div class="section">
+    <div class="section__head">
+      <h2>Matriz RACI — ejemplo</h2>
+      <span class="hint">R = Responsable · A = Aprobador · C = Consultado · I = Informado</span>
+    </div>
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table raci-table" id="raciTable"></table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="./js/data.js"></script>
+<script src="./js/common.js"></script>
+<script src="./js/glosario.js"></script>
+</body>
+</html>
