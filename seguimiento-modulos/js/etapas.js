@@ -43,9 +43,12 @@
     return Store.list(STORE_KEY, baseRows, ID_KEY);
   }
 
+  // pre-filtro desde la búsqueda global (?q=&modulo=)
+  const urlParams = new URLSearchParams(location.search);
+
   let state = {
-    search: "",
-    modulo: "",
+    search: urlParams.get("q") || "",
+    modulo: urlParams.get("modulo") || "",
     fase: "",
     etapa: "",
     estado: "",
@@ -295,4 +298,9 @@
   });
 
   render();
+  // refleja el pre-filtro en los controles visibles (los <select> recién
+  // reciben sus opciones dentro de render()->setupFilters(), por eso se
+  // fija el valor después de la primera pasada)
+  if (state.search) document.getElementById("fSearch").value = state.search;
+  if (state.modulo) document.getElementById("fModulo").value = state.modulo;
 })();

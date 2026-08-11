@@ -97,8 +97,12 @@
     },
   ];
 
-  let activeTabId = TABS[0].id;
-  let state = { search: "", f1: "", f2: "", festado: "", page: 1 };
+  // pre-filtro desde la búsqueda global (?tab=&q=)
+  const urlParams = new URLSearchParams(location.search);
+  const urlTab = urlParams.get("tab");
+
+  let activeTabId = TABS.some((t) => t.id === urlTab) ? urlTab : TABS[0].id;
+  let state = { search: urlParams.get("q") || "", f1: "", f2: "", festado: "", page: 1 };
 
   function liveRows(tab) {
     if (!tab.editable) return tab.baseData;
@@ -380,4 +384,5 @@
   renderTabButtons();
   setupFilters();
   render();
+  if (state.search) document.getElementById("rSearch").value = state.search;
 })();

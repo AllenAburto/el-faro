@@ -6,7 +6,7 @@
 <title>Resumen — Seguimiento Nuevos Módulos SIRH</title>
 <meta name="description" content="Dashboard de seguimiento del proyecto Nuevos Módulos SIRH: avance por etapa, módulo, responsable y requerimientos.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232a78d6%27/%3E%3Cpath d=%27M8 22 L13 12 L18 18 L24 8%27 stroke=%27white%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
-<link rel="stylesheet" href="./css/style.css?v=20260811b">
+<link rel="stylesheet" href="./css/style.css?v=20260811c">
 </head>
 <body>
 
@@ -20,41 +20,45 @@
     </div>
     <nav class="app-nav">
       <a href="index.html">Resumen</a>
-      <a href="etapas.html">Actividades / Etapas</a>
+      <a href="etapas.html">Etapas</a>
       <a href="requerimientos.html">Requerimientos</a>
       <a href="bitacora.html">Bitácora</a>
       <a href="componentes.html">Componentes</a>
-      <a href="glosario.html">Glosario &amp; RACI</a>
+      <a href="glosario.html">Glosario</a>
     </nav>
     <div class="app-header__right">
-      <a class="btn-download" href="./Seguimiento_Nuevos_Modulos_V2_Dashboard.xlsx" title="Descargar el Excel completo">⬇️ Excel</a>
-      <span class="last-update" id="lastUpdate"></span>
+      <button class="search-trigger" id="globalSearchBtn" title="Buscar (Ctrl K)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><line x1="20" y1="20" x2="15.3" y2="15.3"/></svg>
+        <span>Buscar…</span>
+        <kbd>Ctrl K</kbd>
+      </button>
+      <a class="btn-download" href="./Seguimiento_Nuevos_Modulos_V2_Dashboard.xlsx" title="Descargar el Excel completo">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><polyline points="7,10 12,15 17,10"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        <span class="btn-download__text">
+          <strong>Descargar Excel</strong>
+          <small id="lastUpdate">Actualizado —</small>
+        </span>
+      </a>
       <button class="theme-toggle" id="themeToggle" title="Cambiar tema">🌙</button>
     </div>
   </div>
 </header>
 
+<!-- ============================================================== hero -->
+<section class="hero">
+  <div class="hero__inner">
+    <div class="hero__head">
+      <h1>Estado de Avance — Nuevos Módulos</h1>
+      <p id="pageSubtitle">Visión consolidada del proyecto.</p>
+      <div class="hero__status" id="heroStatus"></div>
+    </div>
+    <div class="hero__grid" id="heroKpis"></div>
+  </div>
+</section>
+
 <div class="container">
 
-  <div class="page-head">
-    <h1>Estado de Avance — Nuevos Módulos</h1>
-    <p id="pageSubtitle">Visión consolidada del proyecto.</p>
-  </div>
-
-  <!-- ==================================================== semáforo + KPIs -->
-  <div class="section">
-    <div class="grid grid-3" id="semaforoCards"></div>
-    <div class="card" style="margin-top:14px">
-      <div class="meter-row">
-        <span class="semaforo-icon" id="avanceIcon">🎯</span>
-        <span style="font-weight:700;font-size:13px;white-space:nowrap">Avance general del proyecto</span>
-        <div class="meter meter--lg"><span id="meterAvanceGeneral" style="background:var(--series-1)"></span></div>
-        <span class="meter-value" id="avanceGeneralValue" style="width:56px">—</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
+  <div class="section" style="margin-top:22px">
     <div class="section__head">
       <h2>Indicadores clave</h2>
       <span class="hint" id="indicadoresHint"></span>
@@ -71,20 +75,24 @@
     <div class="card">
       <div class="meter-stack">
         <div class="meter-row">
-          <span class="semaforo-icon">🗂️</span>
+          <span class="semaforo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12,3 21,8 12,13 3,8"/><polyline points="3,13 12,18 21,13"/><polyline points="3,18 12,23 21,18"/></svg></span>
           <span class="meter-row__label">Avance de actividades</span>
           <div class="meter"><span id="meterActividades" style="background:var(--series-1)"></span></div>
           <span class="meter-value" id="valActividades">—</span>
         </div>
         <div class="meter-row">
-          <span class="semaforo-icon">📦</span>
-          <span class="meter-row__label">Requerimientos — Listos</span>
+          <span class="semaforo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><line x1="12" y1="13" x2="12" y2="21"/></svg></span>
+          <span class="meter-row__label">Requerimientos — Listos
+            <span class="info-tip" tabindex="0" data-tip="Requerimientos marcados como &quot;Listo&quot; (QA aprobado) sobre el total de requerimientos definidos."><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg></span>
+          </span>
           <div class="meter"><span id="meterListos" style="background:var(--status-good)"></span></div>
           <span class="meter-value" id="valListos">—</span>
         </div>
         <div class="meter-row">
-          <span class="semaforo-icon">🧩</span>
-          <span class="meter-row__label">Requerimientos — Listos + Maqueta</span>
+          <span class="semaforo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="10" y1="10" x2="10" y2="20"/></svg></span>
+          <span class="meter-row__label">Requerimientos — Listos + Maqueta
+            <span class="info-tip" tabindex="0" data-tip="Suma los requerimientos en estado &quot;Listo&quot; (QA aprobado) y &quot;Maqueta&quot; (prototipo/mockup construido pero aún sin cierre de QA)."><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg></span>
+          </span>
           <div class="meter"><span id="meterListosMaq" style="background:var(--series-7)"></span></div>
           <span class="meter-value" id="valListosMaq">—</span>
         </div>
@@ -99,64 +107,94 @@
       <span class="hint" id="compromisosHint"></span>
     </div>
     <div class="grid grid-4" id="compromisosCards"></div>
-    <div class="card" style="margin-top:14px">
-      <p class="card__title" style="margin-bottom:10px">Compromisos por Módulo</p>
-      <div id="chartCompromisosModulo"></div>
-      <a href="bitacora.html" class="btn-secondary" style="margin-top:14px;display:inline-flex">📒 Ver bitácora completa →</a>
-    </div>
+    <details class="card accordion" style="margin-top:14px" open>
+      <summary>
+        <span class="card__title" style="margin-bottom:0">Compromisos por Módulo</span>
+        <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6,9 12,15 18,9"/></svg></span>
+      </summary>
+      <div class="accordion__body">
+        <div id="chartCompromisosModulo"></div>
+        <a href="bitacora.html" class="btn-secondary" style="margin-top:14px;display:inline-flex"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="3" y1="12" x2="21" y2="12"/></svg> Ver bitácora completa <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13,6 19,12 13,18"/></svg></a>
+      </div>
+    </details>
   </div>
 
   <div class="zone-divider"><span>Detalle por dimensión</span></div>
 
   <!-- ================================================= avance por etapa -->
   <div class="section grid grid-2-1">
-    <div class="card">
-      <div class="section__head" style="margin-bottom:14px">
-        <h2>Avance por Etapa (actividades del cronograma)</h2>
-        <span class="hint" id="etapaHint"></span>
+    <details class="card accordion" open>
+      <summary>
+        <div class="section__head" style="margin-bottom:0">
+          <h2>Avance por Etapa (actividades del cronograma)</h2>
+          <span class="hint" id="etapaHint"></span>
+        </div>
+        <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6,9 12,15 18,9"/></svg></span>
+      </summary>
+      <div class="accordion__body">
+        <div id="chartEtapas"></div>
+        <div class="legend" id="legendEstados" style="margin-top:16px"></div>
       </div>
-      <div id="chartEtapas"></div>
-      <div class="legend" id="legendEstados" style="margin-top:16px"></div>
-    </div>
-    <div class="card">
-      <div class="section__head" style="margin-bottom:14px">
-        <h2>Actividades por Responsable</h2>
-        <span class="hint">Total actividades</span>
+    </details>
+    <details class="card accordion" open>
+      <summary>
+        <div class="section__head" style="margin-bottom:0">
+          <h2>Actividades por Responsable</h2>
+          <span class="hint">Total actividades</span>
+        </div>
+        <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6,9 12,15 18,9"/></svg></span>
+      </summary>
+      <div class="accordion__body">
+        <div id="chartResponsable"></div>
       </div>
-      <div id="chartResponsable"></div>
-    </div>
+    </details>
   </div>
 
   <!-- ================================================ avance por módulo -->
   <div class="section grid grid-2-1">
-    <div class="card">
-      <div class="section__head" style="margin-bottom:14px">
-        <h2>Avance por Módulo</h2>
-        <span class="hint">% actividades finalizadas</span>
+    <details class="card accordion" open>
+      <summary>
+        <div class="section__head" style="margin-bottom:0">
+          <h2>Avance por Módulo</h2>
+          <span class="hint">% actividades finalizadas</span>
+        </div>
+        <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6,9 12,15 18,9"/></svg></span>
+      </summary>
+      <div class="accordion__body">
+        <div id="chartModulos"></div>
       </div>
-      <div id="chartModulos"></div>
-    </div>
-    <div class="card">
-      <div class="section__head" style="margin-bottom:14px">
-        <h2>Requerimientos por Módulo</h2>
-        <span class="hint" id="reqModuloHint"></span>
+    </details>
+    <details class="card accordion" open>
+      <summary>
+        <div class="section__head" style="margin-bottom:0">
+          <h2>Requerimientos por Módulo</h2>
+          <span class="hint" id="reqModuloHint"></span>
+        </div>
+        <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6,9 12,15 18,9"/></svg></span>
+      </summary>
+      <div class="accordion__body">
+        <div id="chartReqModulo"></div>
+        <div class="legend" id="legendReqModulo" style="margin-top:16px"></div>
       </div>
-      <div id="chartReqModulo"></div>
-      <div class="legend" id="legendReqModulo" style="margin-top:16px"></div>
-    </div>
+    </details>
   </div>
 
   <!-- ============================================ requerimientos donut + destacados -->
   <div class="section grid grid-2">
-    <div class="card">
-      <p class="card__title">📊 Avance de Requerimientos (global)</p>
-      <div id="donutReq"></div>
-    </div>
+    <details class="card accordion" open>
+      <summary>
+        <span class="card__title" style="margin-bottom:0;display:flex;align-items:center;gap:8px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="18" y1="20" x2="18" y2="14"/></svg> Avance de Requerimientos (global)</span>
+        <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6,9 12,15 18,9"/></svg></span>
+      </summary>
+      <div class="accordion__body">
+        <div id="donutReq"></div>
+      </div>
+    </details>
     <div class="card">
       <p class="card__title">Componentes destacados</p>
       <div class="destacado-row">
         <div class="destacado destacado--good">
-          <span class="destacado__icon">🏆</span>
+          <span class="destacado__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M8.3 12.6L6.8 21l5.2-3 5.2 3-1.5-8.4"/></svg></span>
           <div>
             <div class="destacado__label">Mejor avance</div>
             <div class="destacado__name" id="mejorAvanceNombre">—</div>
@@ -164,14 +202,14 @@
           <div class="destacado__pct" id="mejorAvancePct">—</div>
         </div>
         <div class="destacado destacado--warn">
-          <span class="destacado__icon">⚠️</span>
+          <span class="destacado__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l10 18H2L12 3z"/><line x1="12" y1="9.5" x2="12" y2="14"/><circle cx="12" cy="17" r="0.9" fill="currentColor" stroke="none"/></svg></span>
           <div>
             <div class="destacado__label">Menor avance</div>
             <div class="destacado__name" id="menorAvanceNombre">—</div>
           </div>
           <div class="destacado__pct" id="menorAvancePct">—</div>
         </div>
-        <a href="componentes.html" class="btn-secondary" style="margin-top:4px;display:inline-flex">🧩 Ver detalle por componente →</a>
+        <a href="componentes.html" class="btn-secondary" style="margin-top:4px;display:inline-flex"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="10" y1="10" x2="10" y2="20"/></svg> Ver detalle por componente <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="13,6 19,12 13,18"/></svg></a>
       </div>
     </div>
   </div>
@@ -184,10 +222,11 @@
 
 </div>
 
-<script src="./js/app-data.js?v=20260811b"></script>
-<script src="./js/common.js?v=20260811b"></script>
-<script src="./js/local-records.js?v=20260811b"></script>
-<script src="./js/charts.js?v=20260811b"></script>
-<script src="./js/dashboard.js?v=20260811b"></script>
+<script src="./js/app-data.js?v=20260811c"></script>
+<script src="./js/icons.js?v=20260811c"></script>
+<script src="./js/common.js?v=20260811c"></script>
+<script src="./js/local-records.js?v=20260811c"></script>
+<script src="./js/charts.js?v=20260811c"></script>
+<script src="./js/dashboard.js?v=20260811c"></script>
 </body>
 </html>

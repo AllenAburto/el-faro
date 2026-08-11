@@ -234,14 +234,212 @@
     return `<span class="dirty-pill">✎ ${parts.join(" · ")} sin exportar</span>`;
   }
 
+  // ------------------------------------------------- tooltips informativos
+  // Ícono "ⓘ" inline para aclarar términos o métricas ambiguas
+  // (ej. "Requerimientos — Listos + Maqueta"). Reutiliza el motor de
+  // tooltips de charts.js (showTip/hideTip) — funciona con delegación de
+  // eventos, así que sirve también para contenido inyectado dinámicamente.
+  function infoTip(text) {
+    return `<span class="info-tip" tabindex="0" data-tip="${esc(text)}">${window.Icons ? window.Icons.svg("info", { size: 13 }) : "ⓘ"}</span>`;
+  }
+  function initInfoTips() {
+    function showFor(el) {
+      const rect = el.getBoundingClientRect();
+      showTip(rect.left + rect.width / 2, rect.top, esc(el.dataset.tip));
+    }
+    document.addEventListener("mouseover", (e) => {
+      const t = e.target.closest(".info-tip");
+      if (t) showFor(t);
+    });
+    document.addEventListener("mouseout", (e) => {
+      if (e.target.closest(".info-tip")) hideTip();
+    });
+    document.addEventListener("focusin", (e) => {
+      const t = e.target.closest(".info-tip");
+      if (t) showFor(t);
+    });
+    document.addEventListener("focusout", (e) => {
+      if (e.target.closest(".info-tip")) hideTip();
+    });
+  }
+
   window.UI = {
     initTheme, initNav, pct, num, dateEs, esc,
     statusBadge, statusColor, showTip, hideTip, debounce,
-    openModal, closeModal, confirmDelete, dirtyPillHtml,
+    openModal, closeModal, confirmDelete, dirtyPillHtml, infoTip,
   };
+
+  // -------------------------------------------------------- búsqueda global
+  // Índice liviano construido una vez desde window.APP_DATA (disponible en
+  // todas las páginas). Cada resultado sabe a qué página navegar y con qué
+  // query string, para que la página destino pueda pre-filtrar su tabla.
+  let searchIndex = null;
+  function buildSearchIndex() {
+    const D = window.APP_DATA;
+    if (!D) return [];
+    const idx = [];
+    (D.resumen_modulo || []).forEach((m) => {
+      if (m["Módulo"] === "Total general") return;
+      idx.push({
+        group: "Módulos", icon: "layers", title: m["Módulo"],
+        sub: `${UI.pct(m["% Avance"], 0)} de avance · ${m["Total"]} actividades`,
+        href: `etapas.html?modulo=${encodeURIComponent(m["Módulo"])}`,
+        text: (m["Módulo"] || "").toLowerCase(),
+      });
+    });
+    const reqTabs = [
+      { data: D.req_autoatencion, tab: "autoatencion", label: "AutoAtención" },
+      { data: D.req_rad, tab: "rad", label: "RAD" },
+      { data: D.req_lm, tab: "lm", label: "Licencias Médicas" },
+      { data: D.req_calificaciones, tab: "calificaciones", label: "Calificaciones" },
+    ];
+    reqTabs.forEach(({ data, tab, label }) => {
+      (data || []).forEach((r) => {
+        const desc = r["Descripcion segun Bases de Licitación"] || r["Descripcion segun Doc. B"] || r["Requerimiento"] || "";
+        const id = r["Id Requerimiento"] || "";
+        idx.push({
+          group: "Requerimientos", icon: "file-text", title: `${id} — ${desc}`.slice(0, 90),
+          sub: `${label} · ${r["Estado"] || r["Estado QA"] || ""}`,
+          href: `requerimientos.html?tab=${tab}&q=${encodeURIComponent(id)}`,
+          text: `${id} ${desc} ${label}`.toLowerCase(),
+        });
+      });
+    });
+    (D.etapas || []).forEach((e) => {
+      const title = e["Actividades/Tarea"] || e["Componente/Subetapa"] || "";
+      if (!title) return;
+      idx.push({
+        group: "Actividades / Etapas", icon: "calendar", title,
+        sub: `${e["Módulo"] || ""} · ${e["Etapa"] || ""} · ${e["Estado"] || ""}`,
+        href: `etapas.html?q=${encodeURIComponent(title)}`,
+        text: `${e["Módulo"]} ${e["Etapa"]} ${e["Componente/Subetapa"]} ${title}`.toLowerCase(),
+      });
+    });
+    (D.bitacora || []).forEach((b) => {
+      const title = b.descripcion || b.accion || "";
+      if (!title) return;
+      idx.push({
+        group: "Bitácora", icon: "briefcase", title: title.slice(0, 90),
+        sub: `${b.modulo || ""} · ${b.estado || ""} · ${dateEs(b.fecha_registro)}`,
+        href: `bitacora.html?q=${encodeURIComponent((b.accion || b.descripcion || "").slice(0, 60))}`,
+        text: `${b.modulo} ${b.descripcion} ${b.accion} ${b.responsable}`.toLowerCase(),
+      });
+    });
+    return idx;
+  }
+
+  function ensureSearchOverlay() {
+    let overlay = document.getElementById("globalSearchOverlay");
+    if (overlay) return overlay;
+    overlay = document.createElement("div");
+    overlay.id = "globalSearchOverlay";
+    overlay.className = "search-overlay";
+    overlay.hidden = true;
+    overlay.innerHTML = `
+      <div class="search-panel" role="dialog" aria-modal="true" aria-label="Búsqueda global">
+        <div class="search-panel__input-row">
+          ${svgIcon("search", 17)}
+          <input type="text" id="globalSearchInput" placeholder="Buscar módulos, requerimientos, actividades, compromisos…" autocomplete="off">
+          <kbd>Esc</kbd>
+        </div>
+        <div class="search-panel__results" id="globalSearchResults"></div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeSearch();
+    });
+    return overlay;
+  }
+
+  function svgIcon(name, size) {
+    return window.Icons ? window.Icons.svg(name, { size: size || 18 }) : "";
+  }
+
+  function openSearch() {
+    const overlay = ensureSearchOverlay();
+    if (!searchIndex) searchIndex = buildSearchIndex();
+    overlay.hidden = false;
+    const input = document.getElementById("globalSearchInput");
+    input.value = "";
+    renderSearchResults("");
+    setTimeout(() => input.focus(), 10);
+  }
+  function closeSearch() {
+    const overlay = document.getElementById("globalSearchOverlay");
+    if (overlay) overlay.hidden = true;
+  }
+
+  function renderSearchResults(query) {
+    const results = document.getElementById("globalSearchResults");
+    const q = query.trim().toLowerCase();
+    let items = searchIndex;
+    if (q) items = items.filter((it) => it.text.includes(q));
+    if (!q) {
+      results.innerHTML = `<div class="search-empty">Escribe para buscar entre ${searchIndex.length.toLocaleString("es-CL")} registros del proyecto…</div>`;
+      return;
+    }
+    if (!items.length) {
+      results.innerHTML = `<div class="search-empty">Sin resultados para “${esc(query)}”.</div>`;
+      return;
+    }
+    const groups = {};
+    items.slice(0, 60).forEach((it) => {
+      (groups[it.group] = groups[it.group] || []).push(it);
+    });
+    let html = "";
+    Object.keys(groups).forEach((g) => {
+      html += `<div class="search-group__label">${esc(g)}</div>`;
+      html += groups[g]
+        .slice(0, 6)
+        .map(
+          (it) => `<button type="button" class="search-result" data-href="${esc(it.href)}">
+            <span class="search-result__icon">${svgIcon(it.icon, 18)}</span>
+            <span class="search-result__main">
+              <span class="search-result__title">${esc(it.title)}</span>
+              <span class="search-result__sub">${esc(it.sub)}</span>
+            </span>
+          </button>`
+        )
+        .join("");
+    });
+    results.innerHTML = html;
+    results.querySelectorAll(".search-result").forEach((btn, i) => {
+      btn.addEventListener("click", () => (window.location.href = btn.dataset.href));
+      if (i === 0) btn.classList.add("is-active");
+    });
+  }
+
+  function initGlobalSearch() {
+    const trigger = document.getElementById("globalSearchBtn");
+    if (!trigger) return;
+    trigger.addEventListener("click", openSearch);
+    document.addEventListener("keydown", (e) => {
+      const isK = e.key === "k" || e.key === "K";
+      if ((e.ctrlKey || e.metaKey) && isK) {
+        e.preventDefault();
+        openSearch();
+        return;
+      }
+      const overlay = document.getElementById("globalSearchOverlay");
+      if (overlay && !overlay.hidden && e.key === "Escape") closeSearch();
+    });
+    document.addEventListener("input", (e) => {
+      if (e.target && e.target.id === "globalSearchInput") {
+        renderSearchResults(e.target.value);
+      }
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.target && e.target.id === "globalSearchInput" && e.key === "Enter") {
+        const first = document.querySelector("#globalSearchResults .search-result");
+        if (first) window.location.href = first.dataset.href;
+      }
+    });
+  }
 
   document.addEventListener("DOMContentLoaded", () => {
     initTheme();
     initNav();
+    initGlobalSearch();
+    initInfoTips();
   });
 })();
