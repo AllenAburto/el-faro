@@ -8,7 +8,9 @@
   const ESTADOS = ["Abierto", "Cerrado", "Archivado"];
   const IMPACTOS = ["Alto", "Medio", "Bajo"];
 
-  let state = { search: "", modulo: "", estado: "", impacto: "", page: 1 };
+  // pre-filtro desde la búsqueda global (?q=)
+  const urlParams = new URLSearchParams(location.search);
+  let state = { search: urlParams.get("q") || "", modulo: "", estado: "", impacto: "", page: 1 };
 
   function liveData() {
     return Store.list(STORE_KEY, D.bitacora, "id");
@@ -257,4 +259,5 @@
   });
 
   render();
+  if (state.search) document.getElementById("bSearch").value = state.search;
 })();

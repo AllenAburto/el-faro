@@ -4,7 +4,6 @@
   const D = window.APP_DATA;
   const meta = D.dashboard_meta;
 
-  document.getElementById("lastUpdate").textContent = "Actualizado: " + UI.dateEs(meta.actualizado);
   document.getElementById("footUpdate").textContent = UI.dateEs(meta.actualizado);
 
   const totalReq = D.avance_global_requerimientos["Total requerimientos"];
@@ -14,53 +13,28 @@
   document.getElementById("indicadoresHint").textContent =
     `${UI.num(meta.total)} actividades · 10 etapas · 7 módulos`;
 
-  // -------------------------------------------------------- semáforo cards
-  const ESTADO_COLOR = { NORMAL: "var(--status-good)", "EN RIESGO": "var(--status-warning)", "CRÍTICO": "var(--status-critical)" };
-  const PLAZOS_INFO = {
-    Verde: { icon: "✅", color: "var(--status-good)" },
-    Amarillo: { icon: "⚠️", color: "var(--status-warning)" },
-    Rojo: { icon: "🔴", color: "var(--status-critical)" },
-  };
-  const plazosInfo = PLAZOS_INFO[meta.plazos] || PLAZOS_INFO.Verde;
-  const estadoColor = ESTADO_COLOR[meta.estado_general] || "var(--text-secondary)";
-
-  const semaforoCards = [
-    { icon: "🚦", label: "Estado general", value: meta.estado_general, color: estadoColor },
-    { icon: plazosInfo.icon, label: "Plazos", value: meta.plazos, color: plazosInfo.color },
-    { icon: "📈", label: "Avance", value: UI.pct(meta.avance_progreso, 1), color: "var(--series-1)" },
-  ];
-  document.getElementById("semaforoCards").innerHTML = semaforoCards
-    .map(
-      (c) => `<div class="semaforo-card">
-        <span class="semaforo-card__icon">${c.icon}</span>
-        <div class="semaforo-card__body">
-          <span class="semaforo-card__label">${UI.esc(c.label)}</span>
-          <span class="semaforo-card__value" style="color:${c.color}">${UI.esc(c.value)}</span>
-        </div>
-      </div>`
-    )
-    .join("");
-
-  document.getElementById("meterAvanceGeneral").style.width = UI.pct(meta.avance_progreso, 1);
-  document.getElementById("avanceGeneralValue").textContent = UI.pct(meta.avance_progreso, 1);
-  document.getElementById("avanceGeneralValue").style.color = "var(--series-1)";
-
   // ------------------------------------------------------------- kpi cards
   const kpis = [
-    { label: "Total actividades", value: UI.num(meta.total), icon: "📋", accent: "" },
-    { label: "Finalizadas", value: UI.num(meta.finalizados), icon: "✅", accent: "accent-good" },
-    { label: "Finalizadas con desfase", value: UI.num(meta.finalizados_desfase), icon: "⏱️", accent: "" },
-    { label: "En curso", value: UI.num(meta.en_curso), icon: "🔄", accent: "accent-1" },
-    { label: "Inicio retrasado (en curso)", value: UI.num(meta.inicio_retrasado), icon: "⏳", accent: "" },
-    { label: "Programadas", value: UI.num(meta.programado), icon: "📅", accent: "" },
-    { label: "No iniciadas", value: UI.num(meta.no_iniciado), icon: "⏸️", accent: "accent-warn" },
-    { label: "Atrasadas", value: UI.num(meta.atrasados), icon: "🚨", accent: "accent-critical" },
+    { label: "Total actividades", value: UI.num(meta.total), icon: "clipboard", accent: "" },
+    { label: "Finalizadas", value: UI.num(meta.finalizados), icon: "check-circle", accent: "accent-good" },
+    {
+      label: "Finalizadas con desfase", value: UI.num(meta.finalizados_desfase), icon: "clock", accent: "",
+      tip: "Actividades que terminaron después de su Fecha Fin Máxima planificada.",
+    },
+    { label: "En curso", value: UI.num(meta.en_curso), icon: "refresh-cw", accent: "accent-1" },
+    {
+      label: "Inicio retrasado (en curso)", value: UI.num(meta.inicio_retrasado), icon: "clock", accent: "",
+      tip: "Actividades ya iniciadas, pero que comenzaron después de su Fecha Inicio Programada.",
+    },
+    { label: "Programadas", value: UI.num(meta.programado), icon: "calendar", accent: "" },
+    { label: "No iniciadas", value: UI.num(meta.no_iniciado), icon: "pause-circle", accent: "accent-warn" },
+    { label: "Atrasadas", value: UI.num(meta.atrasados), icon: "alert-octagon", accent: "accent-critical" },
   ];
   document.getElementById("kpiCards").innerHTML = kpis
     .map(
       (k) => `<div class="stat-tile ${k.accent ? "stat-tile--" + k.accent : ""}">
-        <span class="stat-tile__icon">${k.icon}</span>
-        <span class="stat-tile__label">${k.label}</span>
+        <span class="stat-tile__icon">${Icons.svg(k.icon, { size: 18 })}</span>
+        <span class="stat-tile__label">${k.label}${k.tip ? UI.infoTip(k.tip) : ""}</span>
         <span class="stat-tile__value">${k.value}</span>
       </div>`
     )
@@ -181,14 +155,14 @@
   document.getElementById("compromisosHint").textContent =
     `${UI.num(bitTotal)} registros · ${UI.pct(bitTotal ? bitCerrados / bitTotal : 0, 1)} cerrados`;
   document.getElementById("compromisosCards").innerHTML = [
-    { icon: "📋", label: "Total compromisos", value: UI.num(bitTotal), accent: "accent-1" },
-    { icon: "🔄", label: "Abiertos", value: UI.num(bitAbiertos), accent: "accent-warn" },
-    { icon: "✅", label: "Cerrados", value: UI.num(bitCerrados), accent: "accent-good" },
-    { icon: "📦", label: "Archivados", value: UI.num(bitArchivados), accent: "" },
+    { icon: "clipboard", label: "Total compromisos", value: UI.num(bitTotal), accent: "accent-1" },
+    { icon: "refresh-cw", label: "Abiertos", value: UI.num(bitAbiertos), accent: "accent-warn" },
+    { icon: "check-circle", label: "Cerrados", value: UI.num(bitCerrados), accent: "accent-good" },
+    { icon: "archive", label: "Archivados", value: UI.num(bitArchivados), accent: "" },
   ]
     .map(
       (k) => `<div class="stat-tile ${k.accent ? "stat-tile--" + k.accent : ""}">
-        <span class="stat-tile__icon">${k.icon}</span>
+        <span class="stat-tile__icon">${Icons.svg(k.icon, { size: 18 })}</span>
         <span class="stat-tile__label">${k.label}</span>
         <span class="stat-tile__value">${k.value}</span>
       </div>`
@@ -213,4 +187,63 @@
     { name: "Archivados", color: "var(--text-muted)" },
   ]);
 
+  // =========================================================== hero (arriba)
+  // Se arma al final porque reutiliza valores ya calculados más arriba
+  // (meta, avReq, bitTotal/bitAbiertos) — el orden de ejecución no afecta
+  // el resultado visual, solo el orden en que se completan los <div>.
+  const ESTADO_COLOR = { NORMAL: "var(--status-good)", "EN RIESGO": "var(--status-warning)", "CRÍTICO": "var(--status-critical)" };
+  const PLAZOS_INFO = {
+    Verde: { icon: "check-circle", color: "var(--status-good)" },
+    Amarillo: { icon: "alert-triangle", color: "var(--status-warning)" },
+    Rojo: { icon: "alert-circle", color: "var(--status-critical)" },
+  };
+  const plazosInfo = PLAZOS_INFO[meta.plazos] || PLAZOS_INFO.Verde;
+  const estadoColor = ESTADO_COLOR[meta.estado_general] || "#fff";
+
+  document.getElementById("heroStatus").innerHTML = [
+    { icon: "activity", label: `Estado general: ${meta.estado_general}`, color: estadoColor },
+    { icon: plazosInfo.icon, label: `Plazos: ${meta.plazos}`, color: plazosInfo.color },
+  ]
+    .map(
+      (c) => `<span class="hero__chip"><span style="color:${c.color};display:flex">${Icons.svg(c.icon, { size: 15 })}</span>${UI.esc(c.label)}</span>`
+    )
+    .join("");
+
+  const finalizadasTotal = meta.finalizados + (meta.finalizados_desfase || 0);
+  const heroKpis = [
+    {
+      icon: "target", label: "Avance general del proyecto",
+      value: UI.pct(meta.avance_progreso, 1),
+      sub: `${UI.num(meta.total)} actividades planificadas`,
+    },
+    {
+      icon: "file-text", label: "Total requerimientos",
+      value: UI.num(totalReq),
+      sub: `${UI.pct(avReq["% Avance (Listos)"], 0)} listos a la fecha`,
+    },
+    {
+      icon: "check-circle", label: "Actividades completadas",
+      value: `${UI.num(finalizadasTotal)} / ${UI.num(meta.total)}`,
+      sub: `${UI.pct(meta.total ? finalizadasTotal / meta.total : 0, 1)} del cronograma`,
+    },
+    {
+      icon: "alert-circle", label: "Compromisos pendientes",
+      value: UI.num(bitAbiertos),
+      sub: `de ${UI.num(bitTotal)} registrados en Bitácora`,
+      tip: "Registros de la Bitácora (reuniones, correos, acuerdos) en estado \"Abierto\", es decir, aún sin cerrar.",
+    },
+  ];
+  document.getElementById("heroKpis").innerHTML = heroKpis
+    .map(
+      (k) => `<div class="hero-kpi">
+        <div class="hero-kpi__icon">${Icons.svg(k.icon, { size: 18 })}</div>
+        <div class="hero-kpi__value">${k.value}</div>
+        <div class="hero-kpi__label">${UI.esc(k.label)}${k.tip ? UI.infoTip(k.tip) : ""}</div>
+        <div class="hero-kpi__sub">${UI.esc(k.sub)}</div>
+      </div>`
+    )
+    .join("");
+
+  // fecha de última actualización, integrada al botón de descarga del Excel
+  document.getElementById("lastUpdate").textContent = "Actualizado " + UI.dateEs(meta.actualizado);
 })();
