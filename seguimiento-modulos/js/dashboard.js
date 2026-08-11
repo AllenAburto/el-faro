@@ -172,6 +172,47 @@
   document.getElementById("menorAvanceNombre").textContent = menor["Componente / Subetapa"];
   document.getElementById("menorAvancePct").textContent = UI.pct(menor["% Avance"], 1);
 
+  // ------------------------------------------------------------ compromisos
+  const bitRows = Store.list("bitacora", D.bitacora || [], "id");
+  const bitTotal = bitRows.length;
+  const bitAbiertos = bitRows.filter((r) => r.estado === "Abierto").length;
+  const bitCerrados = bitRows.filter((r) => r.estado === "Cerrado").length;
+  const bitArchivados = bitRows.filter((r) => r.estado === "Archivado").length;
+  document.getElementById("compromisosHint").textContent =
+    `${UI.num(bitTotal)} registros · ${UI.pct(bitTotal ? bitCerrados / bitTotal : 0, 1)} cerrados`;
+  document.getElementById("compromisosCards").innerHTML = [
+    { icon: "📋", label: "Total compromisos", value: UI.num(bitTotal), accent: "accent-1" },
+    { icon: "🔄", label: "Abiertos", value: UI.num(bitAbiertos), accent: "accent-warn" },
+    { icon: "✅", label: "Cerrados", value: UI.num(bitCerrados), accent: "accent-good" },
+    { icon: "📦", label: "Archivados", value: UI.num(bitArchivados), accent: "" },
+  ]
+    .map(
+      (k) => `<div class="stat-tile ${k.accent ? "stat-tile--" + k.accent : ""}">
+        <span class="stat-tile__icon">${k.icon}</span>
+        <span class="stat-tile__label">${k.label}</span>
+        <span class="stat-tile__value">${k.value}</span>
+      </div>`
+    )
+    .join("");
+  const BIT_MODULOS = ["Autoatención", "RAD", "VALS", "Portal SIRH", "FORCAP"];
+  const compModRows = BIT_MODULOS.map((m) => {
+    const rs = bitRows.filter((r) => (r.modulo || "").toLowerCase().includes(m.toLowerCase()));
+    return {
+      label: m,
+      total: rs.length,
+      segments: [
+        { name: "Abiertos", value: rs.filter((r) => r.estado === "Abierto").length, color: "var(--status-warning)" },
+        { name: "Cerrados", value: rs.filter((r) => r.estado === "Cerrado").length, color: "var(--status-good)" },
+        { name: "Archivados", value: rs.filter((r) => r.estado === "Archivado").length, color: "var(--text-muted)" },
+      ],
+    };
+  }).filter((r) => r.total > 0);
+  Charts.stackedBars(document.getElementById("chartCompromisosModulo"), compModRows, [
+    { name: "Abiertos", color: "var(--status-warning)" },
+    { name: "Cerrados", color: "var(--status-good)" },
+    { name: "Archivados", color: "var(--text-muted)" },
+  ]);
+
   // -------------------------------------------------------- tabla componentes
   document.getElementById("compHint").textContent =
     `${D.resumen_componente.length} componentes del ciclo de vida — ordenados por % de avance`;

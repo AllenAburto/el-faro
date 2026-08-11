@@ -3,12 +3,15 @@
   "use strict";
   const D = window.APP_DATA;
   const PAGE_SIZE = 15;
+  const REQ_STATUS_OPTIONS = ["Listo", "Maqueta", "Pendiente", "Observado"];
 
   const TABS = [
     {
       id: "autoatencion",
       label: "AutoAtención",
-      data: D.req_autoatencion,
+      baseData: D.req_autoatencion,
+      storeKey: "req_autoatencion",
+      idKey: "Id Requerimiento",
       statusKey: "Estado",
       filter1: { key: "Tema", label: "Tema" },
       filter2: { key: "Responsable", label: "Responsable" },
@@ -21,11 +24,15 @@
         { key: "Estado", label: "Estado", badge: true },
         { key: "Responsable", label: "Responsable", cls: "nowrap" },
       ],
+      editable: true,
+      hasResponsable: true,
     },
     {
       id: "rad",
       label: "RAD",
-      data: D.req_rad,
+      baseData: D.req_rad,
+      storeKey: "req_rad",
+      idKey: "Id Requerimiento",
       statusKey: "Estado QA",
       filter1: { key: "Módulo", label: "Módulo" },
       filter2: { key: "Responsable", label: "Responsable" },
@@ -38,11 +45,15 @@
         { key: "Estado QA", label: "Estado", badge: true },
         { key: "Responsable", label: "Responsable", cls: "nowrap" },
       ],
+      editable: true,
+      hasResponsable: true,
     },
     {
       id: "lm",
       label: "Licencias Médicas",
-      data: D.req_lm,
+      baseData: D.req_lm,
+      storeKey: "req_lm",
+      idKey: "Id Requerimiento",
       statusKey: "Estado QA",
       filter1: { key: "Forma de Entrega", label: "Origen" },
       filter2: null,
@@ -53,11 +64,15 @@
         { key: "Forma de Entrega", label: "Origen", cls: "nowrap" },
         { key: "Estado QA", label: "Estado", badge: true },
       ],
+      editable: true,
+      hasResponsable: false,
     },
     {
       id: "calificaciones",
       label: "Calificaciones",
-      data: D.req_calificaciones,
+      baseData: D.req_calificaciones,
+      storeKey: "req_calificaciones",
+      idKey: "Id Requerimiento",
       statusKey: "Estado QA",
       filter1: { key: "Tema", label: "Tema" },
       filter2: null,
@@ -69,10 +84,13 @@
         { key: "Forma de Entrega", label: "Origen", cls: "nowrap" },
         { key: "Estado QA", label: "Estado", badge: true },
       ],
+      editable: true,
+      hasResponsable: false,
     },
     {
       id: "otros",
       label: "Otros módulos",
+      baseData: [],
       data: [],
       empty: true,
       note: "FORCAP, Portal SIRH y VALS",
@@ -81,6 +99,11 @@
 
   let activeTabId = TABS[0].id;
   let state = { search: "", f1: "", f2: "", page: 1 };
+
+  function liveRows(tab) {
+    if (!tab.editable) return tab.baseData;
+    return Store.list(tab.storeKey, tab.baseData, tab.idKey);
+  }
 
   // ------------------------------------------------------------- summary
   const totalReq = D.req_autoatencion.length + D.req_rad.length + D.req_lm.length + D.req_calificaciones.length
@@ -115,19 +138,21 @@
 
   // ---------------------------------------------------------------- tabs
   const tabsEl = document.getElementById("reqTabs");
-  tabsEl.innerHTML = TABS.map(
-    (t) => `<button data-tab="${t.id}" class="${t.id === activeTabId ? "active" : ""}">${t.label}<span class="tab-count">${t.data.length}</span></button>`
-  ).join("");
-  tabsEl.querySelectorAll("button").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      activeTabId = btn.dataset.tab;
-      state = { search: "", f1: "", f2: "", page: 1 };
-      document.getElementById("rSearch").value = "";
-      tabsEl.querySelectorAll("button").forEach((b) => b.classList.toggle("active", b.dataset.tab === activeTabId));
-      setupFilters();
-      render();
+  function renderTabButtons() {
+    tabsEl.innerHTML = TABS.map(
+      (t) => `<button data-tab="${t.id}" class="${t.id === activeTabId ? "active" : ""}">${t.label}<span class="tab-count">${liveRows(t).length}</span></button>`
+    ).join("");
+    tabsEl.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeTabId = btn.dataset.tab;
+        state = { search: "", f1: "", f2: "", page: 1 };
+        document.getElementById("rSearch").value = "";
+        renderTabButtons();
+        setupFilters();
+        render();
+      });
     });
-  });
+  }
 
   function currentTab() {
     return TABS.find((t) => t.id === activeTabId);
@@ -139,6 +164,7 @@
 
   function setupFilters() {
     const tab = currentTab();
+    const rows = liveRows(tab);
     const sel1 = document.getElementById("rFilter1");
     const sel2 = document.getElementById("rFilter2");
     sel1.innerHTML = "";
@@ -152,17 +178,17 @@
     document.getElementById("rSearch").style.display = "";
     if (tab.filter1) {
       sel1.style.display = "";
-      sel1.innerHTML = `<option value="">${tab.filter1.label} (todos)</option>` + uniqueSorted(tab.data, tab.filter1.key).map((v) => `<option value="${UI.esc(v)}">${UI.esc(v)}</option>`).join("");
+      sel1.innerHTML = `<option value="">${tab.filter1.label} (todos)</option>` + uniqueSorted(rows, tab.filter1.key).map((v) => `<option value="${UI.esc(v)}">${UI.esc(v)}</option>`).join("");
     } else sel1.style.display = "none";
     if (tab.filter2) {
       sel2.style.display = "";
-      sel2.innerHTML = `<option value="">${tab.filter2.label} (todos)</option>` + uniqueSorted(tab.data, tab.filter2.key).map((v) => `<option value="${UI.esc(v)}">${UI.esc(v)}</option>`).join("");
+      sel2.innerHTML = `<option value="">${tab.filter2.label} (todos)</option>` + uniqueSorted(rows, tab.filter2.key).map((v) => `<option value="${UI.esc(v)}">${UI.esc(v)}</option>`).join("");
     } else sel2.style.display = "none";
   }
 
-  function applyFilters(tab) {
+  function applyFilters(tab, rows) {
     const s = state.search.trim().toLowerCase();
-    return tab.data.filter((r) => {
+    return rows.filter((r) => {
       if (tab.filter1 && state.f1 && r[tab.filter1.key] !== state.f1) return false;
       if (tab.filter2 && state.f2 && r[tab.filter2.key] !== state.f2) return false;
       if (s) {
@@ -173,41 +199,79 @@
     });
   }
 
+  function editFieldsFor(tab) {
+    const fields = [{ key: tab.statusKey, label: "Estado", type: "select", options: REQ_STATUS_OPTIONS }];
+    if (tab.hasResponsable) fields.push({ key: "Responsable", label: "Responsable", type: "text" });
+    return fields;
+  }
+
+  function openEditModal(tab, row) {
+    UI.openModal({
+      title: `Editar requerimiento ${row[tab.idKey] || ""}`,
+      fields: editFieldsFor(tab),
+      initial: row,
+      submitLabel: "Guardar cambios",
+      onSubmit: (values) => {
+        Store.update(tab.storeKey, row[tab.idKey], values, tab.idKey);
+        renderTabButtons();
+        render();
+      },
+    });
+  }
+
   function render() {
     const tab = currentTab();
     document.getElementById("rEmptyNotice").style.display = tab.empty ? "" : "none";
     document.getElementById("rTableWrap").style.display = tab.empty ? "none" : "";
     document.getElementById("rPagination").style.display = tab.empty ? "none" : "";
     document.getElementById("rCount").textContent = tab.empty ? `${tab.note}` : "";
+    document.getElementById("rDirtyPill").innerHTML = tab.editable ? UI.dirtyPillHtml(Store.counts(tab.storeKey)) : "";
+    document.getElementById("rResetBtn").style.display = tab.editable ? "" : "none";
 
     if (tab.empty) return;
 
-    const filtered = applyFilters(tab);
+    const rows = liveRows(tab);
+    const filtered = applyFilters(tab, rows);
     const total = filtered.length;
     const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
     state.page = Math.min(state.page, pages);
     const start = (state.page - 1) * PAGE_SIZE;
     const pageRows = filtered.slice(start, start + PAGE_SIZE);
 
-    document.getElementById("rCount").textContent = `${total} de ${tab.data.length} requerimientos`;
+    document.getElementById("rCount").textContent = `${total} de ${rows.length} requerimientos`;
 
-    document.getElementById("rThead").innerHTML = `<tr>${tab.columns.map((c) => `<th>${c.label}</th>`).join("")}</tr>`;
+    document.getElementById("rThead").innerHTML =
+      `<tr>${tab.columns.map((c) => `<th>${c.label}</th>`).join("")}${tab.editable ? "<th></th>" : ""}</tr>`;
     const tbody = document.getElementById("rBody");
     if (!pageRows.length) {
-      tbody.innerHTML = `<tr><td colspan="${tab.columns.length}"><div class="empty-state">Sin resultados para los filtros aplicados.</div></td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="${tab.columns.length + 1}"><div class="empty-state">Sin resultados para los filtros aplicados.</div></td></tr>`;
     } else {
       tbody.innerHTML = pageRows
-        .map(
-          (r) =>
-            `<tr>${tab.columns
-              .map((c) => {
-                const v = r[c.key];
-                if (c.badge) return `<td>${UI.statusBadge(v)}</td>`;
-                return `<td class="${c.cls || ""}">${v ? UI.esc(v) : '<span class="cell-muted">—</span>'}</td>`;
-              })
-              .join("")}</tr>`
-        )
+        .map((r) => {
+          const cells = tab.columns
+            .map((c) => {
+              const v = r[c.key];
+              if (c.badge) {
+                const localTag = r._local ? '<span class="badge-local">local</span>' : r._edited ? '<span class="badge-local">editado</span>' : "";
+                return `<td>${UI.statusBadge(v)}${localTag}</td>`;
+              }
+              return `<td class="${c.cls || ""}">${v ? UI.esc(v) : '<span class="cell-muted">—</span>'}</td>`;
+            })
+            .join("");
+          const actions = tab.editable
+            ? `<td class="row-actions"><button class="btn-icon" title="Editar" data-edit="${UI.esc(r[tab.idKey])}">✎</button></td>`
+            : "";
+          return `<tr>${cells}${actions}</tr>`;
+        })
         .join("");
+      if (tab.editable) {
+        tbody.querySelectorAll("[data-edit]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const row = rows.find((r) => String(r[tab.idKey]) === btn.dataset.edit);
+            if (row) openEditModal(tab, row);
+          });
+        });
+      }
     }
 
     const pag = document.getElementById("rPagination");
@@ -254,7 +318,17 @@
     document.getElementById("rFilter2").value = "";
     render();
   });
+  document.getElementById("rResetBtn").addEventListener("click", () => {
+    const tab = currentTab();
+    if (!tab.editable || !Store.isDirty(tab.storeKey)) return;
+    if (window.confirm(`¿Restablecer los cambios locales de "${tab.label}"? Se perderán las ediciones hechas en este navegador.`)) {
+      Store.resetAll(tab.storeKey);
+      renderTabButtons();
+      render();
+    }
+  });
 
+  renderTabButtons();
   setupFilters();
   render();
 })();
