@@ -98,7 +98,7 @@
   ];
 
   let activeTabId = TABS[0].id;
-  let state = { search: "", f1: "", f2: "", page: 1 };
+  let state = { search: "", f1: "", f2: "", festado: "", page: 1 };
 
   function liveRows(tab) {
     if (!tab.editable) return tab.baseData;
@@ -145,7 +145,7 @@
     tabsEl.querySelectorAll("button").forEach((btn) => {
       btn.addEventListener("click", () => {
         activeTabId = btn.dataset.tab;
-        state = { search: "", f1: "", f2: "", page: 1 };
+        state = { search: "", f1: "", f2: "", festado: "", page: 1 };
         document.getElementById("rSearch").value = "";
         renderTabButtons();
         setupFilters();
@@ -167,11 +167,15 @@
     const rows = liveRows(tab);
     const sel1 = document.getElementById("rFilter1");
     const sel2 = document.getElementById("rFilter2");
+    const selEstado = document.getElementById("rFilterEstado");
     sel1.innerHTML = "";
     sel2.innerHTML = "";
+    selEstado.innerHTML = "";
+    document.getElementById("rNewBtn").style.display = tab.editable ? "" : "none";
     if (tab.empty) {
       sel1.style.display = "none";
       sel2.style.display = "none";
+      selEstado.style.display = "none";
       document.getElementById("rSearch").style.display = "none";
       return;
     }
@@ -184,6 +188,8 @@
       sel2.style.display = "";
       sel2.innerHTML = `<option value="">${tab.filter2.label} (todos)</option>` + uniqueSorted(rows, tab.filter2.key).map((v) => `<option value="${UI.esc(v)}">${UI.esc(v)}</option>`).join("");
     } else sel2.style.display = "none";
+    selEstado.style.display = "";
+    selEstado.innerHTML = `<option value="">Estado (todos)</option>` + REQ_STATUS_OPTIONS.map((v) => `<option value="${UI.esc(v)}">${UI.esc(v)}</option>`).join("");
   }
 
   function applyFilters(tab, rows) {
@@ -191,6 +197,7 @@
     return rows.filter((r) => {
       if (tab.filter1 && state.f1 && r[tab.filter1.key] !== state.f1) return false;
       if (tab.filter2 && state.f2 && r[tab.filter2.key] !== state.f2) return false;
+      if (state.festado && r[tab.statusKey] !== state.festado) return false;
       if (s) {
         const hay = tab.searchFields.map((k) => r[k]).filter(Boolean).join(" ").toLowerCase();
         if (!hay.includes(s)) return false;
@@ -199,20 +206,52 @@
     });
   }
 
-  function editFieldsFor(tab) {
-    const fields = [{ key: tab.statusKey, label: "Estado", type: "select", options: REQ_STATUS_OPTIONS }];
-    if (tab.hasResponsable) fields.push({ key: "Responsable", label: "Responsable", type: "text" });
-    return fields;
+  const LONG_FIELDS = ["Descripcion segun Bases de Licitación", "Descripcion segun Doc. B", "Requerimiento"];
+
+  function fieldsForColumns(tab, includeId) {
+    return tab.columns
+      .filter((c) => includeId || c.key !== tab.idKey)
+      .map((c) => {
+        if (c.badge) return { key: c.key, label: "Estado", type: "select", options: REQ_STATUS_OPTIONS, required: true };
+        if (c.key === tab.idKey) return { key: c.key, label: "ID requerimiento", type: "text", required: true };
+        if (LONG_FIELDS.includes(c.key)) return { key: c.key, label: c.label, type: "textarea", full: true };
+        return { key: c.key, label: c.label, type: "text" };
+      });
   }
 
   function openEditModal(tab, row) {
     UI.openModal({
       title: `Editar requerimiento ${row[tab.idKey] || ""}`,
-      fields: editFieldsFor(tab),
+      fields: fieldsForColumns(tab, false),
       initial: row,
       submitLabel: "Guardar cambios",
+      onDelete: () => {
+        if (UI.confirmDelete(`¿Eliminar el requerimiento ${row[tab.idKey] || ""}? Solo afecta a este navegador.`)) {
+          Store.remove(tab.storeKey, row[tab.idKey], tab.idKey);
+          renderTabButtons();
+          render();
+        }
+      },
       onSubmit: (values) => {
         Store.update(tab.storeKey, row[tab.idKey], values, tab.idKey);
+        renderTabButtons();
+        render();
+      },
+    });
+  }
+
+  function openNewModal(tab) {
+    UI.openModal({
+      title: `Nuevo requerimiento — ${tab.label}`,
+      fields: fieldsForColumns(tab, true),
+      initial: { [tab.statusKey]: "Pendiente" },
+      submitLabel: "Registrar",
+      onSubmit: (values) => {
+        if (!values[tab.idKey]) {
+          window.alert("El ID del requerimiento es obligatorio.");
+          return;
+        }
+        Store.create(tab.storeKey, values, tab.idKey);
         renderTabButtons();
         render();
       },
@@ -311,12 +350,22 @@
     state.page = 1;
     render();
   });
+  document.getElementById("rFilterEstado").addEventListener("change", (e) => {
+    state.festado = e.target.value;
+    state.page = 1;
+    render();
+  });
   document.getElementById("rReset").addEventListener("click", () => {
-    state = { search: "", f1: "", f2: "", page: 1 };
+    state = { search: "", f1: "", f2: "", festado: "", page: 1 };
     document.getElementById("rSearch").value = "";
     document.getElementById("rFilter1").value = "";
     document.getElementById("rFilter2").value = "";
+    document.getElementById("rFilterEstado").value = "";
     render();
+  });
+  document.getElementById("rNewBtn").addEventListener("click", () => {
+    const tab = currentTab();
+    if (tab.editable) openNewModal(tab);
   });
   document.getElementById("rResetBtn").addEventListener("click", () => {
     const tab = currentTab();

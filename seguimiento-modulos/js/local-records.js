@@ -1,5 +1,5 @@
 /* =============================================================================
-   store.js — capa de registro/edición local (CRUD) para un sitio 100% estático.
+   local-records.js — capa de registro/edición local (CRUD) para un sitio 100% estático.
 
    Este dashboard se publica en GitHub Pages sin backend ni base de datos: no hay
    dónde "guardar" un alta/edición/baja de forma compartida. Por eso el registro

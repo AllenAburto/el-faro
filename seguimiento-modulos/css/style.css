@@ -843,3 +843,23 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 @media (max-width: 620px) {
   .form-grid { grid-template-columns: 1fr; }
 }
+
+/* ---------------------------------------------------------- zone-divider */
+.zone-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 18px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.zone-divider::before,
+.zone-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--gridline);
+}

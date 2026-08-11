@@ -1,4 +1,4 @@
-/* ============================================================ data.js
+/* ======================================================== app-data.js
    Datos extraídos de Seguimiento_Nuevos_Modulos_V2_Dashboard.xlsx
    (generado automáticamente — no editar a mano)
    ========================================================= */

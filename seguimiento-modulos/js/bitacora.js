@@ -8,7 +8,7 @@
   const ESTADOS = ["Abierto", "Cerrado", "Archivado"];
   const IMPACTOS = ["Alto", "Medio", "Bajo"];
 
-  let state = { search: "", modulo: "", origen: "", impacto: "", page: 1 };
+  let state = { search: "", modulo: "", estado: "", impacto: "", page: 1 };
 
   function liveData() {
     return Store.list(STORE_KEY, D.bitacora, "id");
@@ -75,8 +75,8 @@
   function setupFilters(rows) {
     const selModulo = document.getElementById("bModulo");
     selModulo.innerHTML = `<option value="">Módulo (todos)</option>` + MODULOS.map((m) => `<option value="${UI.esc(m)}">${UI.esc(m)}</option>`).join("");
-    const selOrigen = document.getElementById("bOrigen");
-    selOrigen.innerHTML = `<option value="">Origen (todos)</option>` + uniqueSorted(rows, "origen").map((v) => `<option value="${UI.esc(v)}">${UI.esc(v)}</option>`).join("");
+    const selEstado = document.getElementById("bEstado");
+    selEstado.innerHTML = `<option value="">Estado (todos)</option>` + ESTADOS.map((v) => `<option value="${UI.esc(v)}">${UI.esc(v)}</option>`).join("");
     const selImpacto = document.getElementById("bImpacto");
     selImpacto.innerHTML = `<option value="">Impacto (todos)</option>` + IMPACTOS.map((v) => `<option value="${UI.esc(v)}">${UI.esc(v)}</option>`).join("");
   }
@@ -85,7 +85,7 @@
     const s = state.search.trim().toLowerCase();
     return rows.filter((r) => {
       if (state.modulo && !matchesModulo(r, state.modulo)) return false;
-      if (state.origen && r.origen !== state.origen) return false;
+      if (state.estado && r.estado !== state.estado) return false;
       if (state.impacto && r.impacto !== state.impacto) return false;
       if (s) {
         const hay = [r.descripcion, r.accion, r.responsable, r.observaciones, r.componente]
@@ -231,16 +231,16 @@
     state.page = 1;
     render();
   }, 180));
-  ["bModulo", "bOrigen", "bImpacto"].forEach((id) => {
+  ["bModulo", "bEstado", "bImpacto"].forEach((id) => {
     document.getElementById(id).addEventListener("change", (e) => {
-      const map = { bModulo: "modulo", bOrigen: "origen", bImpacto: "impacto" };
+      const map = { bModulo: "modulo", bEstado: "estado", bImpacto: "impacto" };
       state[map[id]] = e.target.value;
       state.page = 1;
       render();
     });
   });
   document.getElementById("bReset").addEventListener("click", () => {
-    state = { search: "", modulo: "", origen: "", impacto: "", page: 1 };
+    state = { search: "", modulo: "", estado: "", impacto: "", page: 1 };
     document.getElementById("bSearch").value = "";
     render();
   });
