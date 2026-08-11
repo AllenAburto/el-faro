@@ -6,7 +6,7 @@
 <title>Bitácora de Compromisos — Seguimiento Nuevos Módulos SIRH</title>
 <meta name="description" content="Registro de compromisos, reuniones y correos del proyecto: alta, edición y cierre de registros.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232a78d6%27/%3E%3Cpath d=%27M8 22 L13 12 L18 18 L24 8%27 stroke=%27white%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
-<link rel="stylesheet" href="./css/style.css?v=20260811a">
+<link rel="stylesheet" href="./css/style.css?v=20260811b">
 </head>
 <body>
 
@@ -23,6 +23,7 @@
       <a href="etapas.html">Actividades / Etapas</a>
       <a href="requerimientos.html">Requerimientos</a>
       <a href="bitacora.html">Bitácora</a>
+      <a href="componentes.html">Componentes</a>
       <a href="glosario.html">Glosario &amp; RACI</a>
     </nav>
     <div class="app-header__right">
@@ -70,7 +71,7 @@
     <div class="filters">
       <input type="search" id="bSearch" placeholder="Buscar descripción, acción, responsable…">
       <select id="bModulo"><option value="">Módulo (todos)</option></select>
-      <select id="bOrigen"><option value="">Origen (todos)</option></select>
+      <select id="bEstado"><option value="">Estado (todos)</option></select>
       <select id="bImpacto"><option value="">Impacto (todos)</option></select>
       <button class="btn-reset" id="bReset">Limpiar filtros</button>
       <span class="count-pill" id="bCount"></span>
@@ -105,10 +106,10 @@
 
 </div>
 
-<script src="./js/data.js?v=20260811a"></script>
-<script src="./js/common.js?v=20260811a"></script>
-<script src="./js/store.js?v=20260811a"></script>
-<script src="./js/charts.js?v=20260811a"></script>
-<script src="./js/bitacora.js?v=20260811a"></script>
+<script src="./js/app-data.js?v=20260811b"></script>
+<script src="./js/common.js?v=20260811b"></script>
+<script src="./js/local-records.js?v=20260811b"></script>
+<script src="./js/charts.js?v=20260811b"></script>
+<script src="./js/bitacora.js?v=20260811b"></script>
 </body>
 </html>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Glosario &amp; RACI — Seguimiento Nuevos Módulos SIRH</title>
-<meta name="description" content="Glosario de términos del proyecto, tabla de módulos y etapas, y matriz RACI de ejemplo.">
+<title>Avance por Componente — Seguimiento Nuevos Módulos SIRH</title>
+<meta name="description" content="Avance del proyecto por componente / subetapa del ciclo de vida, ordenado por % de avance.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232a78d6%27/%3E%3Cpath d=%27M8 22 L13 12 L18 18 L24 8%27 stroke=%27white%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
 <link rel="stylesheet" href="./css/style.css?v=20260811b">
 </head>
@@ -35,51 +35,30 @@
 <div class="container">
 
   <div class="page-head">
-    <h1>Glosario, Tablas &amp; Matriz RACI</h1>
-    <p>Definiciones usadas en el seguimiento del proyecto, los estados posibles de una actividad,
-       la lista de módulos y etapas, y un ejemplo de matriz RACI de responsabilidades.</p>
-  </div>
-
-  <div class="section grid grid-2-1">
-    <div class="card">
-      <p class="card__title">Glosario</p>
-      <dl class="glossary-list" id="glossaryList"></dl>
-    </div>
-
-    <div class="card">
-      <p class="card__title">Tipos de contrato</p>
-      <div id="tiposList" style="margin-bottom:18px"></div>
-      <p class="card__title">Módulos del proyecto</p>
-      <div id="modulosList" style="margin-bottom:18px"></div>
-      <p class="card__title">Etapas del ciclo de vida</p>
-      <div id="etapasList"></div>
-    </div>
+    <h1>Avance por Componente / Subetapa</h1>
+    <p>Detalle de las 42 componentes/subetapas del ciclo de vida del proyecto, con su % de avance
+       (finalizadas anticipadas + a tiempo + con desfase sobre el total de actividades del componente).</p>
   </div>
 
   <div class="section">
     <div class="section__head">
-      <h2>Estados posibles de una actividad</h2>
-      <span class="hint">Referencia usada en las columnas “Estado” del cronograma</span>
-    </div>
-    <div class="grid grid-4" id="estadosGrid"></div>
-  </div>
-
-  <div class="section">
-    <div class="section__head">
-      <h2>Matriz RACI — ejemplo</h2>
-      <span class="hint">R = Responsable · A = Aprobador · C = Consultado · I = Informado</span>
+      <h2>Componentes</h2>
+      <span class="hint" id="compHint"></span>
     </div>
     <div class="card">
-      <div class="table-wrap">
-        <table class="data-table raci-table" id="raciTable"></table>
-      </div>
+      <div id="tableComponentes" class="table-wrap"></div>
     </div>
+  </div>
+
+  <div class="footnote">
+    Fuente: hoja <code>Indicadores</code> del archivo Excel (tabla "Resumen por Componente / Subetapa").
+    <a href="index.html">← Volver al Resumen</a>
   </div>
 
 </div>
 
 <script src="./js/app-data.js?v=20260811b"></script>
 <script src="./js/common.js?v=20260811b"></script>
-<script src="./js/glosario.js?v=20260811b"></script>
+<script src="./js/componentes.js?v=20260811b"></script>
 </body>
 </html>

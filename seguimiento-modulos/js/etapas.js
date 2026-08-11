@@ -116,12 +116,30 @@
     });
   }
 
+  const RESPONSABLES = ["MINSAL", "PROVEEDOR"];
+  const MODULOS_LIST = uniqueSorted(baseRows, "Módulo");
+  const FASES_LIST = uniqueSorted(baseRows, "Fase");
+  const ETAPAS_LIST = uniqueSorted(baseRows, "Etapa");
+
   const EDIT_FIELDS = [
     { key: "Fecha Inicio Programada", label: "Inicio programado", type: "date" },
     { key: "Fecha Inicio Real", label: "Inicio real", type: "date" },
     { key: "Fecha Fin Máxima", label: "Fin máximo", type: "date" },
     { key: "Fecha Fin Real", label: "Fin real", type: "date" },
-    { key: "Responsable", label: "Responsable", type: "select", options: ["MINSAL", "PROVEEDOR"], placeholder: "Selecciona…" },
+    { key: "Responsable", label: "Responsable", type: "select", options: RESPONSABLES, placeholder: "Selecciona…" },
+  ];
+
+  const NEW_FIELDS = [
+    { key: "Módulo", label: "Módulo", type: "select", options: MODULOS_LIST, placeholder: "Selecciona…", required: true },
+    { key: "Fase", label: "Fase", type: "select", options: FASES_LIST, placeholder: "Selecciona…" },
+    { key: "Etapa", label: "Etapa", type: "select", options: ETAPAS_LIST, placeholder: "Selecciona…", required: true },
+    { key: "Componente/Subetapa", label: "Componente / Subetapa", type: "text" },
+    { key: "Actividades/Tarea", label: "Actividad / Tarea", type: "text", full: true, required: true },
+    { key: "Responsable", label: "Responsable", type: "select", options: RESPONSABLES, placeholder: "Selecciona…" },
+    { key: "Fecha Inicio Programada", label: "Inicio programado", type: "date" },
+    { key: "Fecha Inicio Real", label: "Inicio real", type: "date" },
+    { key: "Fecha Fin Máxima", label: "Fin máximo", type: "date" },
+    { key: "Fecha Fin Real", label: "Fin real", type: "date" },
   ];
 
   function openEditModal(row) {
@@ -130,10 +148,33 @@
       fields: EDIT_FIELDS,
       initial: row,
       submitLabel: "Guardar cambios",
+      onDelete: () => {
+        if (UI.confirmDelete(`¿Eliminar la actividad "${row["Actividades/Tarea"] || ""}"? Solo afecta a este navegador.`)) {
+          Store.remove(STORE_KEY, row[ID_KEY], ID_KEY);
+          render();
+        }
+      },
       onSubmit: (values) => {
         const merged = Object.assign({}, row, values);
         merged["Estado"] = computeEstado(merged);
         Store.update(STORE_KEY, row[ID_KEY], Object.assign({}, values, { Estado: merged["Estado"] }), ID_KEY);
+        render();
+      },
+    });
+  }
+
+  function openNewModal() {
+    UI.openModal({
+      title: "Nueva actividad",
+      fields: NEW_FIELDS,
+      submitLabel: "Registrar",
+      onSubmit: (values) => {
+        if (!values["Módulo"] || !values["Etapa"] || !values["Actividades/Tarea"]) {
+          window.alert("Módulo, Etapa y Actividad/Tarea son obligatorios.");
+          return;
+        }
+        values["Estado"] = computeEstado(values);
+        Store.create(STORE_KEY, values, ID_KEY);
         render();
       },
     });
@@ -233,6 +274,7 @@
     ["fModulo", "fFase", "fEtapa", "fEstado", "fResponsable"].forEach((id) => (document.getElementById(id).value = ""));
     render();
   });
+  document.getElementById("etNewBtn").addEventListener("click", openNewModal);
   document.getElementById("etResetBtn").addEventListener("click", () => {
     if (!Store.isDirty(STORE_KEY)) return;
     if (window.confirm("¿Restablecer todos los cambios locales de Etapas? Se perderán las ediciones hechas en este navegador.")) {

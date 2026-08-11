@@ -6,7 +6,7 @@
 <title>Resumen — Seguimiento Nuevos Módulos SIRH</title>
 <meta name="description" content="Dashboard de seguimiento del proyecto Nuevos Módulos SIRH: avance por etapa, módulo, responsable y requerimientos.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232a78d6%27/%3E%3Cpath d=%27M8 22 L13 12 L18 18 L24 8%27 stroke=%27white%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
-<link rel="stylesheet" href="./css/style.css?v=20260811a">
+<link rel="stylesheet" href="./css/style.css?v=20260811b">
 </head>
 <body>
 
@@ -23,6 +23,7 @@
       <a href="etapas.html">Actividades / Etapas</a>
       <a href="requerimientos.html">Requerimientos</a>
       <a href="bitacora.html">Bitácora</a>
+      <a href="componentes.html">Componentes</a>
       <a href="glosario.html">Glosario &amp; RACI</a>
     </nav>
     <div class="app-header__right">
@@ -91,6 +92,22 @@
     </div>
   </div>
 
+  <!-- ==================================================== compromisos -->
+  <div class="section">
+    <div class="section__head">
+      <h2>Compromisos (Bitácora)</h2>
+      <span class="hint" id="compromisosHint"></span>
+    </div>
+    <div class="grid grid-4" id="compromisosCards"></div>
+    <div class="card" style="margin-top:14px">
+      <p class="card__title" style="margin-bottom:10px">Compromisos por Módulo</p>
+      <div id="chartCompromisosModulo"></div>
+      <a href="bitacora.html" class="btn-secondary" style="margin-top:14px;display:inline-flex">📒 Ver bitácora completa →</a>
+    </div>
+  </div>
+
+  <div class="zone-divider"><span>Detalle por dimensión</span></div>
+
   <!-- ================================================= avance por etapa -->
   <div class="section grid grid-2-1">
     <div class="card">
@@ -154,32 +171,8 @@
           </div>
           <div class="destacado__pct" id="menorAvancePct">—</div>
         </div>
+        <a href="componentes.html" class="btn-secondary" style="margin-top:4px;display:inline-flex">🧩 Ver detalle por componente →</a>
       </div>
-    </div>
-  </div>
-
-  <!-- ==================================================== compromisos -->
-  <div class="section">
-    <div class="section__head">
-      <h2>Compromisos (Bitácora)</h2>
-      <span class="hint" id="compromisosHint"></span>
-    </div>
-    <div class="grid grid-4" id="compromisosCards"></div>
-    <div class="card" style="margin-top:14px">
-      <p class="card__title" style="margin-bottom:10px">Compromisos por Módulo</p>
-      <div id="chartCompromisosModulo"></div>
-      <a href="bitacora.html" class="btn-secondary" style="margin-top:14px;display:inline-flex">📒 Ver bitácora completa →</a>
-    </div>
-  </div>
-
-  <!-- ============================================= resumen por componente -->
-  <div class="section">
-    <div class="section__head">
-      <h2>Avance por Componente / Subetapa</h2>
-      <span class="hint" id="compHint"></span>
-    </div>
-    <div class="card">
-      <div id="tableComponentes" class="table-wrap"></div>
     </div>
   </div>
 
@@ -191,10 +184,10 @@
 
 </div>
 
-<script src="./js/data.js?v=20260811a"></script>
-<script src="./js/common.js?v=20260811a"></script>
-<script src="./js/store.js?v=20260811a"></script>
-<script src="./js/charts.js?v=20260811a"></script>
-<script src="./js/dashboard.js?v=20260811a"></script>
+<script src="./js/app-data.js?v=20260811b"></script>
+<script src="./js/common.js?v=20260811b"></script>
+<script src="./js/local-records.js?v=20260811b"></script>
+<script src="./js/charts.js?v=20260811b"></script>
+<script src="./js/dashboard.js?v=20260811b"></script>
 </body>
 </html>
