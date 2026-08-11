@@ -92,6 +92,12 @@
     "Observado": { cls: "badge-serious", css: "var(--status-serious)" },
     "Si": { cls: "badge-good", css: "var(--status-good)" },
     "No": { cls: "badge-neutral", css: "var(--text-secondary)" },
+    "Abierto": { cls: "badge-warning", css: "var(--status-warning)" },
+    "Cerrado": { cls: "badge-good", css: "var(--status-good)" },
+    "Archivado": { cls: "badge-neutral", css: "var(--text-secondary)" },
+    "Alto": { cls: "badge-critical", css: "var(--status-critical)" },
+    "Medio": { cls: "badge-warning", css: "var(--status-warning)" },
+    "Bajo": { cls: "badge-neutral", css: "var(--text-secondary)" },
   };
   function statusBadge(value) {
     if (!value) return '<span class="badge badge-neutral">Sin dato</span>';
@@ -133,9 +139,105 @@
     };
   }
 
+  // ---------------------------------------------------------------- modal
+  let modalRoot = null;
+  function ensureModalRoot() {
+    if (!modalRoot) {
+      modalRoot = document.createElement("div");
+      modalRoot.className = "modal-overlay";
+      modalRoot.hidden = true;
+      modalRoot.innerHTML = '<div class="modal" role="dialog" aria-modal="true"></div>';
+      modalRoot.addEventListener("click", (e) => {
+        if (e.target === modalRoot) closeModal();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !modalRoot.hidden) closeModal();
+      });
+      document.body.appendChild(modalRoot);
+    }
+    return modalRoot;
+  }
+
+  function closeModal() {
+    if (modalRoot) modalRoot.hidden = true;
+  }
+
+  function fieldHtml(field, value) {
+    const id = "mf_" + field.key.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const v = value === undefined || value === null ? "" : value;
+    const cls = field.full ? "form-field form-field--full" : "form-field";
+    let input;
+    if (field.type === "select") {
+      input = `<select id="${id}" name="${field.key}" ${field.required ? "required" : ""}>` +
+        (field.placeholder ? `<option value="">${esc(field.placeholder)}</option>` : "") +
+        field.options.map((o) => `<option value="${esc(o)}" ${String(o) === String(v) ? "selected" : ""}>${esc(o)}</option>`).join("") +
+        `</select>`;
+    } else if (field.type === "textarea") {
+      input = `<textarea id="${id}" name="${field.key}" ${field.required ? "required" : ""}>${esc(v)}</textarea>`;
+    } else {
+      const type = field.type || "text";
+      input = `<input id="${id}" name="${field.key}" type="${type}" value="${esc(v)}" ${field.required ? "required" : ""}>`;
+    }
+    return `<div class="${cls}"><label for="${id}">${esc(field.label)}</label>${input}</div>`;
+  }
+
+  function openModal(opts) {
+    const root = ensureModalRoot();
+    const modal = root.querySelector(".modal");
+    const values = opts.initial || {};
+    modal.innerHTML = `
+      <div class="modal__head">
+        <h3>${esc(opts.title)}</h3>
+        <button type="button" class="modal__close" aria-label="Cerrar">✕</button>
+      </div>
+      <form id="modalForm">
+        <div class="form-grid">
+          ${opts.fields.map((fld) => fieldHtml(fld, values[fld.key])).join("")}
+        </div>
+        <div class="modal__foot">
+          ${opts.onDelete ? '<button type="button" class="btn-secondary btn-danger" id="modalDeleteBtn" style="margin-right:auto">🗑️ Eliminar</button>' : ""}
+          <button type="button" class="btn-secondary" id="modalCancelBtn">Cancelar</button>
+          <button type="submit" class="btn-primary">${esc(opts.submitLabel || "Guardar")}</button>
+        </div>
+      </form>`;
+    root.hidden = false;
+    modal.querySelector(".modal__close").addEventListener("click", closeModal);
+    modal.querySelector("#modalCancelBtn").addEventListener("click", closeModal);
+    if (opts.onDelete) {
+      modal.querySelector("#modalDeleteBtn").addEventListener("click", () => {
+        closeModal();
+        opts.onDelete();
+      });
+    }
+    modal.querySelector("#modalForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const out = {};
+      opts.fields.forEach((fld) => (out[fld.key] = fd.get(fld.key) || ""));
+      closeModal();
+      opts.onSubmit(out);
+    });
+    const firstInput = modal.querySelector("input, select, textarea");
+    if (firstInput) firstInput.focus();
+  }
+
+  function confirmDelete(message) {
+    return window.confirm(message || "¿Eliminar este registro? Esta acción se puede deshacer con “Restablecer cambios”.");
+  }
+
+  function dirtyPillHtml(counts) {
+    if (!counts || counts.total === 0) return "";
+    const parts = [];
+    if (counts.additions) parts.push(`${counts.additions} nuevo(s)`);
+    if (counts.edits) parts.push(`${counts.edits} editado(s)`);
+    if (counts.deletions) parts.push(`${counts.deletions} eliminado(s)`);
+    return `<span class="dirty-pill">✎ ${parts.join(" · ")} sin exportar</span>`;
+  }
+
   window.UI = {
     initTheme, initNav, pct, num, dateEs, esc,
     statusBadge, statusColor, showTip, hideTip, debounce,
+    openModal, closeModal, confirmDelete, dirtyPillHtml,
   };
 
   document.addEventListener("DOMContentLoaded", () => {

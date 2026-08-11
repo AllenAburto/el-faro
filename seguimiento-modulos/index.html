@@ -22,6 +22,7 @@
       <a href="index.html">Resumen</a>
       <a href="etapas.html">Actividades / Etapas</a>
       <a href="requerimientos.html">Requerimientos</a>
+      <a href="bitacora.html">Bitácora</a>
       <a href="glosario.html">Glosario &amp; RACI</a>
     </nav>
     <div class="app-header__right">
@@ -157,6 +158,20 @@
     </div>
   </div>
 
+  <!-- ==================================================== compromisos -->
+  <div class="section">
+    <div class="section__head">
+      <h2>Compromisos (Bitácora)</h2>
+      <span class="hint" id="compromisosHint"></span>
+    </div>
+    <div class="grid grid-4" id="compromisosCards"></div>
+    <div class="card" style="margin-top:14px">
+      <p class="card__title" style="margin-bottom:10px">Compromisos por Módulo</p>
+      <div id="chartCompromisosModulo"></div>
+      <a href="bitacora.html" class="btn-secondary" style="margin-top:14px;display:inline-flex">📒 Ver bitácora completa →</a>
+    </div>
+  </div>
+
   <!-- ============================================= resumen por componente -->
   <div class="section">
     <div class="section__head">
@@ -178,6 +193,7 @@
 
 <script src="./js/data.js"></script>
 <script src="./js/common.js"></script>
+<script src="./js/store.js"></script>
 <script src="./js/charts.js"></script>
 <script src="./js/dashboard.js"></script>
 </body>

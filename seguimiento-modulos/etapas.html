@@ -22,6 +22,7 @@
       <a href="index.html">Resumen</a>
       <a href="etapas.html">Actividades / Etapas</a>
       <a href="requerimientos.html">Requerimientos</a>
+      <a href="bitacora.html">Bitácora</a>
       <a href="glosario.html">Glosario &amp; RACI</a>
     </nav>
     <div class="app-header__right">
@@ -38,7 +39,21 @@
        3 fases (I·II·III) y 7 módulos. Usa los filtros y el buscador para acotar la vista.</p>
   </div>
 
+  <div class="local-banner">
+    <span class="local-banner__icon">✎</span>
+    <span>Puedes actualizar las fechas reales de inicio/fin (y el responsable) de cada actividad con el lápiz
+      de cada fila — el <strong>Estado</strong> se recalcula al instante con las mismas reglas del Excel.
+      Los cambios se guardan solo en este navegador; usa “Restablecer cambios” para deshacerlos.</span>
+  </div>
+
   <div class="section">
+    <div class="toolbar-row">
+      <span class="hint">Cronograma de actividades</span>
+      <div class="toolbar-row__right">
+        <span id="etDirtyPill"></span>
+        <button class="btn-secondary btn-danger" id="etResetBtn">↺ Restablecer cambios</button>
+      </div>
+    </div>
     <div class="filters">
       <input type="search" id="fSearch" placeholder="Buscar actividad, componente, entregable…">
       <select id="fModulo"><option value="">Módulo (todos)</option></select>
@@ -64,6 +79,7 @@
             <th data-key="Fecha Inicio Programada">Inicio programado</th>
             <th data-key="Fecha Fin Máxima">Fin máximo</th>
             <th data-key="Estado">Estado</th>
+            <th></th>
           </tr>
         </thead>
         <tbody id="etapasBody"></tbody>
@@ -80,6 +96,7 @@
 
 <script src="./js/data.js"></script>
 <script src="./js/common.js"></script>
+<script src="./js/store.js"></script>
 <script src="./js/etapas.js"></script>
 </body>
 </html>

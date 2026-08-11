@@ -22,6 +22,7 @@
       <a href="index.html">Resumen</a>
       <a href="etapas.html">Actividades / Etapas</a>
       <a href="requerimientos.html">Requerimientos</a>
+      <a href="bitacora.html">Bitácora</a>
       <a href="glosario.html">Glosario &amp; RACI</a>
     </nav>
     <div class="app-header__right">
@@ -38,10 +39,22 @@
        y responsable de construcción.</p>
   </div>
 
+  <div class="local-banner">
+    <span class="local-banner__icon">✎</span>
+    <span>Puedes actualizar el <strong>Estado</strong> (y el Responsable, cuando aplica) de cada requerimiento con el
+      lápiz de cada fila. Los cambios se guardan solo en este navegador — usa “Restablecer cambios” para deshacerlos.</span>
+  </div>
+
   <div class="section grid grid-4" id="reqSummary"></div>
 
   <div class="section">
-    <div class="tabs" id="reqTabs"></div>
+    <div class="toolbar-row">
+      <div class="tabs" id="reqTabs" style="border:none;margin:0"></div>
+      <div class="toolbar-row__right">
+        <span id="rDirtyPill"></span>
+        <button class="btn-secondary btn-danger" id="rResetBtn">↺ Restablecer cambios</button>
+      </div>
+    </div>
 
     <div class="filters">
       <input type="search" id="rSearch" placeholder="Buscar requerimiento…">
@@ -77,6 +90,7 @@
 
 <script src="./js/data.js"></script>
 <script src="./js/common.js"></script>
+<script src="./js/store.js"></script>
 <script src="./js/charts.js"></script>
 <script src="./js/requerimientos.js"></script>
 </body>
