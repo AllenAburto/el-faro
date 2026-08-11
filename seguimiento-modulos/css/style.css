@@ -554,31 +554,6 @@ a { color: var(--series-1); }
 .semaforo-card__label { font-size: 12px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-muted); }
 .semaforo-card__value { font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* ------------------------------------------------------------ download btn
-   Secondary CTA profesional: contorno azul institucional, se rellena al pasar
-   el cursor (evita competir visualmente con los botones primarios de acción). */
-.btn-download {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  color: var(--brand-blue);
-  background: var(--surface-2);
-  border: 1.5px solid var(--brand-blue);
-  padding: 6px 13px;
-  border-radius: var(--radius-sm);
-  white-space: nowrap;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-.btn-download svg { flex: none; }
-.btn-download__text { display: flex; flex-direction: column; line-height: 1.3; }
-.btn-download__text strong { font-size: 13px; font-weight: 700; }
-.btn-download__text small { font-size: 11px; font-weight: 600; opacity: 0.75; }
-.btn-download:hover { background: var(--brand-blue); color: #fff; }
-:root[data-theme="dark"] .btn-download,
-:root:where(:not([data-theme="light"])) .btn-download { color: var(--series-1); border-color: var(--series-1); }
-:root[data-theme="dark"] .btn-download:hover,
-:root:where(:not([data-theme="light"])) .btn-download:hover { background: var(--series-1); color: #0b0b0b; }
 
 /* ------------------------------------------------------ componentes destacados */
 .destacado-row { display: flex; flex-direction: column; gap: 12px; }

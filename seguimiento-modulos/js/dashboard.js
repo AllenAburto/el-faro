@@ -244,6 +244,6 @@
     )
     .join("");
 
-  // fecha de última actualización, integrada al botón de descarga del Excel
-  document.getElementById("lastUpdate").textContent = "Actualizado " + UI.dateEs(meta.actualizado);
+  // fecha de última actualización, en el header
+  document.getElementById("lastUpdate").textContent = "Actualizado: " + UI.dateEs(meta.actualizado);
 })();
