@@ -6,7 +6,7 @@
 <title>Resumen — Seguimiento Nuevos Módulos SIRH</title>
 <meta name="description" content="Dashboard de seguimiento del proyecto Nuevos Módulos SIRH: avance por etapa, módulo, responsable y requerimientos.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232a78d6%27/%3E%3Cpath d=%27M8 22 L13 12 L18 18 L24 8%27 stroke=%27white%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E">
-<link rel="stylesheet" href="./css/style.css?v=20260813a">
+<link rel="stylesheet" href="./css/style.css?v=20260813d">
 </head>
 <body>
 
@@ -77,7 +77,7 @@
         <div class="meter-row">
           <span class="semaforo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M3 8v8l9 5 9-5V8"/><line x1="12" y1="13" x2="12" y2="21"/></svg></span>
           <span class="meter-row__label">Requerimientos — Listos
-            <span class="info-tip" tabindex="0" data-tip="Requerimientos marcados como &quot;Listo&quot; (QA aprobado) sobre el total de requerimientos definidos."><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg></span>
+            <span class="info-tip" tabindex="0" data-tip="Requerimientos marcados como &quot;Listo&quot; (QA aprobado) sobre el total de requerimientos definidos — incluye los que aún no tienen ninguna evaluación QA. Para el avance solo entre los ya evaluados, ver la fila &quot;Avance sobre evaluados&quot; más abajo."><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg></span>
           </span>
           <div class="meter"><span id="meterListos" style="background:var(--status-good)"></span></div>
           <span class="meter-value" id="valListos">—</span>
@@ -85,10 +85,26 @@
         <div class="meter-row">
           <span class="semaforo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="10" y1="10" x2="10" y2="20"/></svg></span>
           <span class="meter-row__label">Requerimientos — Listos + Maqueta
-            <span class="info-tip" tabindex="0" data-tip="Suma los requerimientos en estado &quot;Listo&quot; (QA aprobado) y &quot;Maqueta&quot; (prototipo/mockup construido pero aún sin cierre de QA)."><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg></span>
+            <span class="info-tip" tabindex="0" data-tip="Suma los requerimientos en estado &quot;Listo&quot; (QA aprobado) y &quot;Maqueta&quot; (prototipo/mockup construido pero aún sin cierre de QA), sobre el total de requerimientos definidos."><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg></span>
           </span>
           <div class="meter"><span id="meterListosMaq" style="background:var(--series-7)"></span></div>
           <span class="meter-value" id="valListosMaq">—</span>
+        </div>
+        <div class="meter-row">
+          <span class="semaforo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+          <span class="meter-row__label">Requerimientos — Cobertura de evaluación QA
+            <span class="info-tip" tabindex="0" data-tip="Qué porcentaje de los requerimientos definidos ya tiene algún estado de evaluación QA (Listo, Maqueta, Pendiente u Observado). El resto todavía no ha sido revisado — ver P3-05 del Plan de Trabajo, hallazgo relacionado con P1-06."><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg></span>
+          </span>
+          <div class="meter"><span id="meterCobertura" style="background:var(--series-4)"></span></div>
+          <span class="meter-value" id="valCobertura">—</span>
+        </div>
+        <div class="meter-row">
+          <span class="semaforo-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20,6 9,17 4,12"/></svg></span>
+          <span class="meter-row__label">Requerimientos — Avance sobre evaluados
+            <span class="info-tip" tabindex="0" data-tip="Listos sobre el total de requerimientos QUE YA TIENEN evaluación QA (excluye los que aún no han sido revisados). A diferencia de &quot;Requerimientos — Listos&quot;, esta métrica no baja artificialmente por requerimientos que simplemente no se han mirado todavía."><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg></span>
+          </span>
+          <div class="meter"><span id="meterAvanceEvaluados" style="background:var(--status-good)"></span></div>
+          <span class="meter-value" id="valAvanceEvaluados">—</span>
         </div>
       </div>
     </div>
@@ -120,7 +136,9 @@
     <details class="card accordion" open>
       <summary>
         <div class="section__head" style="margin-bottom:0">
-          <h2>Avance por Etapa (actividades del cronograma)</h2>
+          <h2>Avance por Etapa (actividades del cronograma)
+            <span class="info-tip" tabindex="0" data-tip="El número de abajo es el avance ponderado: además de las actividades &quot;Finalizado&quot; (100%), cuenta las &quot;En curso&quot; (50%) y &quot;Atrasado&quot; (25%) según cuánto avanzaron, en vez de tratarlas como 0% igual que las que no han empezado."><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><circle cx="12" cy="7.5" r="0.9" fill="currentColor" stroke="none"/></svg></span>
+          </h2>
           <span class="hint" id="etapaHint"></span>
         </div>
         <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6,9 12,15 18,9"/></svg></span>
@@ -215,11 +233,11 @@
 
 </div>
 
-<script src="./js/app-data.js?v=20260813a"></script>
-<script src="./js/icons.js?v=20260813a"></script>
-<script src="./js/common.js?v=20260813a"></script>
-<script src="./js/local-records.js?v=20260813a"></script>
-<script src="./js/charts.js?v=20260813a"></script>
-<script src="./js/dashboard.js?v=20260813a"></script>
+<script src="./js/app-data.js?v=20260813d"></script>
+<script src="./js/icons.js?v=20260813d"></script>
+<script src="./js/common.js?v=20260813d"></script>
+<script src="./js/local-records.js?v=20260813d"></script>
+<script src="./js/charts.js?v=20260813d"></script>
+<script src="./js/dashboard.js?v=20260813d"></script>
 </body>
 </html>

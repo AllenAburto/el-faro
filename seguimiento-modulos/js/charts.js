@@ -69,7 +69,15 @@
         bar.addEventListener("mouseleave", UI.hideTip);
         track.appendChild(bar);
       });
-      const val = el("div", "barchart__val", r.total !== undefined ? r.total : total);
+      // r.valSub (opcional): línea secundaria bajo el total, p.ej. el
+      // "avance ponderado" junto al conteo — ver P3-04 del Plan de Trabajo.
+      // Solo la usan las filas que la definen; el resto de los llamadores
+      // de stackedBars no se ven afectados.
+      const valText = UI.esc(String(r.total !== undefined ? r.total : total));
+      const val = el(
+        "div", "barchart__val",
+        r.valSub ? `${valText}<span class="barchart__val-sub">${UI.esc(r.valSub)}</span>` : valText
+      );
       row.appendChild(label);
       row.appendChild(track);
       row.appendChild(val);

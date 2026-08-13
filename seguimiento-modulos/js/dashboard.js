@@ -42,12 +42,30 @@
 
   // ---------------------------------------------------------- avance general
   const avReq = D.avance_global_requerimientos;
+  // "Total general" de req_por_modulo trae el desglose por Estado QA
+  // completo (incluye "Observado", que avance_global_requerimientos no
+  // tiene) — se usa aquí y más abajo, en la sección de requerimientos por módulo.
+  const reqTotalGeneral = D.req_por_modulo.find((r) => r["Módulo"] === "Total general");
   document.getElementById("valActividades").textContent = UI.pct(meta.avance_progreso, 1);
   document.getElementById("meterActividades").style.width = UI.pct(meta.avance_progreso, 1);
   document.getElementById("valListos").textContent = UI.pct(avReq["% Avance (Listos)"], 1);
   document.getElementById("meterListos").style.width = UI.pct(avReq["% Avance (Listos)"], 1);
   document.getElementById("valListosMaq").textContent = UI.pct(avReq["% Avance (Listos + Maquetas)"], 1);
   document.getElementById("meterListosMaq").style.width = UI.pct(avReq["% Avance (Listos + Maquetas)"], 1);
+
+  // P3-05 (Plan de Trabajo): el 44.7% de arriba ("Listos" / total) mezcla
+  // dos cosas distintas — requerimientos que avanzaron poco y
+  // requerimientos que ni siquiera se han evaluado todavía. Se separan en
+  // dos métricas: cuánto del total ya pasó por QA (cobertura), y qué tan
+  // bien va lo que sí pasó por QA (avance sobre evaluados).
+  const reqObservadosGlobal = reqTotalGeneral["Observado"] || 0;
+  const reqEvaluados = (avReq["Listos"] || 0) + (avReq["Maquetas"] || 0) + (avReq["Pendientes"] || 0) + reqObservadosGlobal;
+  const coberturaEvaluacion = avReq["Total requerimientos"] ? reqEvaluados / avReq["Total requerimientos"] : 0;
+  const avanceSobreEvaluados = reqEvaluados ? (avReq["Listos"] || 0) / reqEvaluados : 0;
+  document.getElementById("valCobertura").textContent = UI.pct(coberturaEvaluacion, 1);
+  document.getElementById("meterCobertura").style.width = UI.pct(coberturaEvaluacion, 1);
+  document.getElementById("valAvanceEvaluados").textContent = UI.pct(avanceSobreEvaluados, 1);
+  document.getElementById("meterAvanceEvaluados").style.width = UI.pct(avanceSobreEvaluados, 1);
 
   // ---------------------------------------------------- avance por etapa
   const ESTADO_ORDER = [
@@ -61,6 +79,10 @@
     label: r["Etapa"],
     total: r["Total"],
     segments: ESTADO_ORDER.map((e) => ({ name: e.key, value: r[e.key] || 0, color: e.color })),
+    // P3-04 — avance ponderado: el "% Avance" del Excel solo cuenta como
+    // avance lo "Finalizado"; esto pondera también lo En curso/Atrasado
+    // en proporción a cuánto avanzaron, sin reemplazar el número simple.
+    valSub: `${UI.pct(UI.weightedAvance(r), 0)} pond.`,
   }));
   Charts.stackedBars(document.getElementById("chartEtapas"), etapaRows);
   const usedStates = new Set();
@@ -109,7 +131,6 @@
         { name: "Observado", value: r["Observado"] || 0, color: "var(--status-serious)" },
       ],
     }));
-  const reqTotalGeneral = D.req_por_modulo.find((r) => r["Módulo"] === "Total general");
   document.getElementById("reqModuloHint").textContent = `${UI.num(reqTotalGeneral["Total"])} requerimientos definidos`;
   Charts.stackedBars(document.getElementById("chartReqModulo"), reqModRows);
   document.getElementById("legendReqModulo").innerHTML = [
@@ -122,13 +143,13 @@
     .join("");
 
   // --------------------------------------------------------- donut req global
-  const reqObservados = reqTotalGeneral["Observado"] || 0;
-  const reqSinEstado = avReq["Total requerimientos"] - avReq["Listos"] - avReq["Maquetas"] - avReq["Pendientes"] - reqObservados;
+  // reqObservadosGlobal / reqEvaluados ya se calcularon arriba, en P3-05.
+  const reqSinEstado = avReq["Total requerimientos"] - reqEvaluados;
   const donutReqSegs = [
     { name: "Listos", value: avReq["Listos"], color: "var(--status-good)" },
     { name: "Maquetas", value: avReq["Maquetas"], color: "var(--series-1)" },
     { name: "Pendientes", value: avReq["Pendientes"], color: "var(--status-warning)" },
-    { name: "Observados", value: reqObservados, color: "var(--status-serious)" },
+    { name: "Observados", value: reqObservadosGlobal, color: "var(--status-serious)" },
   ];
   if (reqSinEstado > 0) {
     donutReqSegs.push({ name: "Sin estado QA aún", value: reqSinEstado, color: "var(--baseline)" });
