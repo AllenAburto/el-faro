@@ -403,6 +403,35 @@
       .trim();
   }
 
+  // ===================================================================
+  // Avance ponderado por etapa/módulo — Plan de Trabajo Fase 3 (P3-04).
+  // El "% Avance" que ya trae el Excel (resumen_etapa/resumen_modulo)
+  // solo cuenta como avance las actividades "Finalizado*" — todo lo demás
+  // pesa 0, aunque esté en curso o atrasado. Con datos donde la enorme
+  // mayoría de actividades sigue "Programado" (no ha empezado) eso es
+  // razonable, pero esconde el progreso real de lo que sí se está
+  // trabajando. Este cálculo pondera cada estado según cuánto avanzó,
+  // como métrica complementaria — nunca reemplaza el "% Avance" simple,
+  // se muestra junto a él y con su fórmula visible en el tooltip.
+  // ===================================================================
+  const AVANCE_PONDERADO_PESOS = {
+    "Finalizado": 1, "Finalizado anticipado": 1, "Finalizado con desfase": 1,
+    "En curso": 0.5, "Inicio anticipado": 0.5, "Inicio retrasado": 0.5,
+    "Atrasado": 0.25,
+    "Programado": 0, "No iniciado": 0, "Falta planificación": 0, "COMPLETAR": 0,
+  };
+  /** row: una fila de resumen_etapa o resumen_modulo (columnas = nombres de
+   *  Estado con la cantidad de actividades en ese estado, + "Total"). */
+  function weightedAvance(row) {
+    const total = row["Total"] || 0;
+    if (!total) return 0;
+    let sum = 0;
+    Object.keys(AVANCE_PONDERADO_PESOS).forEach((estado) => {
+      sum += (row[estado] || 0) * AVANCE_PONDERADO_PESOS[estado];
+    });
+    return sum / total;
+  }
+
   // ------------------------------------------------ banner global de cambios
   // P0-04: visible en las 6 páginas (no solo en la página de la colección
   // editada) cuando exista al menos una colección con cambios locales sin
@@ -458,7 +487,7 @@
     openModal, closeModal, confirmDelete, dirtyPillHtml, infoTip,
     todayIso, isVencido, computeSemaforo, initGlobalDirtyBanner,
     CANONICAL_MODULOS, normalizeModulo, moduloTokens, moduloDisplay, moduloMatches,
-    normalizeResponsable,
+    normalizeResponsable, weightedAvance,
   };
 
   // -------------------------------------------------------- búsqueda global
