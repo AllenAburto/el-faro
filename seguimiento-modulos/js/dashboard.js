@@ -176,9 +176,11 @@
       </div>`
     )
     .join("");
-  const BIT_MODULOS = ["Autoatención", "RAD", "VALS", "Portal SIRH", "FORCAP"];
+  // Módulos que registran compromisos en la Bitácora (subconjunto del
+  // catálogo canónico — ver UI.CANONICAL_MODULOS / UI.moduloMatches en common.js).
+  const BIT_MODULOS = ["AutoAtención", "RAD", "VALS", "Portal SIRH", "FORCAP"];
   const compModRows = BIT_MODULOS.map((m) => {
-    const rs = bitRows.filter((r) => (r.modulo || "").toLowerCase().includes(m.toLowerCase()));
+    const rs = bitRows.filter((r) => UI.moduloMatches(r.modulo, m));
     return {
       label: m,
       total: rs.length,

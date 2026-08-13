@@ -327,6 +327,82 @@
     };
   }
 
+  // ===================================================================
+  // Catálogo canónico de módulos y normalización defensiva — Plan de
+  // Trabajo Fase 1 (P1-01/P1-03, código). La hoja Bitácora del Excel
+  // escribe el módulo con variantes ("Autoatención" vs "AutoAtención",
+  // valores combinados como "autoatención, RAD") y algunos responsables
+  // llevan espacios finales que hacen que la misma persona se cuente dos
+  // veces ("Melany Orellana" vs "Melany Orellana "). Esto normaliza solo
+  // en el portal, para mostrar y agrupar de forma consistente — no toca
+  // el Excel maestro ni los datos de origen (ver "Regla de oro" del plan;
+  // los hallazgos que sí requieren corregirse en el Excel — catálogo
+  // formal, ids duplicados, criterios de QA faltantes — quedan listados
+  // aparte para seguimiento con el equipo funcional).
+  // ===================================================================
+  const CANONICAL_MODULOS = [
+    "AutoAtención", "Licencias Médicas", "FORCAP", "Calificaciones",
+    "RAD", "VALS", "Portal SIRH", "Observatorio",
+  ];
+  // clave sin tildes/mayúsculas → nombre canónico
+  const MODULO_ALIASES = {
+    "autoatencion": "AutoAtención",
+    "auto atencion": "AutoAtención",
+    "lm": "Licencias Médicas",
+    "licencias medicas": "Licencias Médicas",
+    "forcap": "FORCAP",
+    "calificaciones": "Calificaciones",
+    "rad": "RAD",
+    "vals": "VALS",
+    "portal sirh": "Portal SIRH",
+    "observatorio": "Observatorio",
+  };
+  function stripAccents(s) {
+    return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "");
+  }
+  function moduloKey(s) {
+    return stripAccents(String(s || "").trim().toLowerCase());
+  }
+  /** Normaliza un único nombre de módulo a su forma canónica. Si no se
+   *  reconoce, devuelve el texto original recortado — nunca se descarta
+   *  información por no encontrar coincidencia. */
+  function normalizeModulo(raw) {
+    const key = moduloKey(raw);
+    if (!key) return "";
+    return MODULO_ALIASES[key] || String(raw).trim();
+  }
+  /** Divide un campo de módulo potencialmente multivalor (p.ej.
+   *  "autoatención, RAD") en una lista de nombres canónicos sin duplicados. */
+  function moduloTokens(raw) {
+    if (!raw) return [];
+    return String(raw)
+      .split(/[,/]| y /i)
+      .map((p) => normalizeModulo(p))
+      .filter((n, i, arr) => n && arr.indexOf(n) === i);
+  }
+  /** Texto legible para mostrar un módulo (incluye el caso multivalor),
+   *  con nombres canónicos: "autoatención, RAD" → "AutoAtención, RAD". */
+  function moduloDisplay(raw) {
+    const tokens = moduloTokens(raw);
+    return tokens.length ? tokens.join(", ") : String(raw || "").trim();
+  }
+  /** ¿El campo de módulo (posiblemente multivalor) de una fila incluye el
+   *  módulo canónico dado? Reemplaza el matching por substring/lowercase
+   *  usado antes, que era frágil ante variantes no previstas. */
+  function moduloMatches(raw, modulo) {
+    return moduloTokens(raw).includes(modulo);
+  }
+  /** Normaliza un nombre de responsable: recorta espacios (incluidos los
+   *  finales que duplicaban el conteo de una misma persona) y prolija el
+   *  separador "/" en campos con varios responsables. No cambia nombres
+   *  reales, solo espacios en blanco. */
+  function normalizeResponsable(raw) {
+    return String(raw || "")
+      .replace(/\s*\/\s*/g, " / ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   // ------------------------------------------------ banner global de cambios
   // P0-04: visible en las 6 páginas (no solo en la página de la colección
   // editada) cuando exista al menos una colección con cambios locales sin
@@ -381,6 +457,8 @@
     statusBadge, statusColor, showTip, hideTip, debounce,
     openModal, closeModal, confirmDelete, dirtyPillHtml, infoTip,
     todayIso, isVencido, computeSemaforo, initGlobalDirtyBanner,
+    CANONICAL_MODULOS, normalizeModulo, moduloTokens, moduloDisplay, moduloMatches,
+    normalizeResponsable,
   };
 
   // -------------------------------------------------------- búsqueda global
@@ -434,9 +512,9 @@
       if (!title) return;
       idx.push({
         group: "Bitácora", icon: "briefcase", title: title.slice(0, 90),
-        sub: `${b.modulo || ""} · ${b.estado || ""} · ${dateEs(b.fecha_registro)}`,
+        sub: `${moduloDisplay(b.modulo)} · ${b.estado || ""} · ${dateEs(b.fecha_registro)}`,
         href: `bitacora.html?q=${encodeURIComponent((b.accion || b.descripcion || "").slice(0, 60))}`,
-        text: `${b.modulo} ${b.descripcion} ${b.accion} ${b.responsable}`.toLowerCase(),
+        text: `${moduloDisplay(b.modulo)} ${b.descripcion} ${b.accion} ${normalizeResponsable(b.responsable)}`.toLowerCase(),
       });
     });
     return idx;
