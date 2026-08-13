@@ -267,6 +267,31 @@
     document.addEventListener("focusout", (e) => {
       if (e.target.closest(".info-tip")) hideTip();
     });
+
+    // P5-03 (Plan de Trabajo Fase 5): en pantallas táctiles no existe
+    // "hover", así que el ⓘ no mostraba nada al tocarlo. Un tap alterna
+    // el tooltip (mostrar la primera vez, ocultar si se toca de nuevo el
+    // mismo ícono) y tocar en cualquier otro lugar de la página lo
+    // cierra. Con mouse esto no cambia nada perceptible: el hover ya
+    // muestra el tooltip antes de que llegue el click.
+    let openInfoTipEl = null;
+    document.addEventListener("click", (e) => {
+      const t = e.target.closest(".info-tip");
+      if (!t) {
+        if (openInfoTipEl) {
+          hideTip();
+          openInfoTipEl = null;
+        }
+        return;
+      }
+      if (openInfoTipEl === t) {
+        hideTip();
+        openInfoTipEl = null;
+      } else {
+        showFor(t);
+        openInfoTipEl = t;
+      }
+    });
   }
 
   // ===================================================================

@@ -135,19 +135,21 @@ formato `{edits: {}, additions: [], deletions: []}`). Nadie más ve esos
 cambios, y se pierden si limpian el navegador.
 
 El flujo pensado para que esos cambios lleguen al Excel maestro es
-manual: la persona que edita usa el botón **"Exportar cambios"** (hoy
-solo en Bitácora — ver más abajo) para descargar un JSON con sus
-ediciones/altas/bajas, se lo envía a quien mantiene el Excel, y esa
-persona los aplica a mano. Desde la Fase 2 del Plan de Trabajo, ese JSON
-incluye un campo `version_datos` con la fecha del Excel sobre el que se
-hicieron los cambios (el mismo `dashboard_meta.actualizado`) — sirve para
-notar si el export quedó desactualizado antes de aplicarlo a ciegas.
+manual: la persona que edita usa el botón **"Exportar cambios"**
+(presente en las 3 páginas editables — Bitácora, Etapas y
+Requerimientos, este último exporta la pestaña de módulo activa) para
+descargar un JSON con sus ediciones/altas/bajas, se lo envía a quien
+mantiene el Excel, y esa persona los aplica a mano. Desde la Fase 2 del
+Plan de Trabajo, ese JSON incluye un campo `version_datos` con la fecha
+del Excel sobre el que se hicieron los cambios (el mismo
+`dashboard_meta.actualizado`) — sirve para notar si el export quedó
+desactualizado antes de aplicarlo a ciegas.
 
-`Store.exportChanges()` solo está conectada a un botón en `bitacora.html`
-hoy — Etapas y Requerimientos tienen "Restablecer cambios" pero no
-"Exportar". Si se vuelve un problema real (gente pierde ediciones sin
-poder mandarlas), agregar el mismo botón ahí es sencillo: llamar
-`Store.exportChanges(STORE_KEY, "archivo.json")` como ya hace `bitacora.js`.
+Si agregas una colección editable nueva, conectar su botón "Exportar
+cambios" es una línea: `Store.exportChanges(STORE_KEY, "archivo.json")`
+(ver `etapas.js`/`bitacora.js` para el caso simple, o `requerimientos.js`
+para el caso con pestañas por módulo, donde `STORE_KEY` depende de la
+pestaña activa).
 
 ## 7. El "semáforo" (Estado general / Plazos) — por qué se recalcula
 
@@ -237,10 +239,15 @@ que existe hoy.
   antes de usarlo (herramienta: cualquier calculadora de contraste WCAG).
 - **Accesibilidad**: el link de navegación activo lleva `aria-current="page"`
   además de la clase visual `.active` (`UI.initNav()`); los tooltips
-  (`.info-tip`) son enfocables por teclado (`tabindex="0"`). Pendiente:
-  los gráficos (`js/charts.js`) son `<div>` con color, sin tabla de datos
-  alternativa ni `aria-label` — no son accesibles a lectores de pantalla
-  hoy (ver Plan de Trabajo, Fase 5, P5-02/P5-03).
+  (`.info-tip`) son enfocables por teclado (`tabindex="0"`) y responden a
+  tap en pantallas táctiles, no solo a hover (`UI.initInfoTips()`); los
+  gráficos de dona (`Charts.donut()`) tienen `role="img"` + `aria-label`
+  con el resumen de datos. Pendiente: los gráficos de barras
+  (`simpleBars`/`stackedBars`) no tienen tabla de datos alternativa para
+  lectores de pantalla, y sus tooltips al pasar el mouse sobre una barra
+  no tienen equivalente táctil (ver Plan de Trabajo, Fase 5, resto de
+  P5-02/P5-03 — el alcance de P5-03 en esta entrega fue solo los íconos
+  ⓘ, que eran el pedido original de tooltips del proyecto).
 - **No hay suite de pruebas automatizada.** La verificación de cada
   cambio se hace manualmente con Playwright (captura de errores de
   consola en las 6 páginas + capturas de pantalla) antes de cada commit.

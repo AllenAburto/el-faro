@@ -284,6 +284,9 @@
     render();
   });
   document.getElementById("etNewBtn").addEventListener("click", openNewModal);
+  document.getElementById("etExportBtn").addEventListener("click", () => {
+    Store.exportChanges(STORE_KEY, "etapas_cambios.json");
+  });
   document.getElementById("etResetBtn").addEventListener("click", () => {
     if (!Store.isDirty(STORE_KEY)) return;
     if (window.confirm("¿Restablecer todos los cambios locales de Etapas? Se perderán las ediciones hechas en este navegador.")) {
