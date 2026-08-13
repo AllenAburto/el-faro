@@ -263,10 +263,202 @@
     });
   }
 
+  // ===================================================================
+  // Semáforo real — Plan de Trabajo Fase 0 (P0-01/P0-02)
+  // Se recalcula en cada render contra la fecha del sistema, en vez de
+  // leer un valor congelado del Excel (que hoy dice "NORMAL"/"Verde" sin
+  // relación con los compromisos vencidos). Reglas explícitas y visibles
+  // en el tooltip de cada chip del hero, para que sean auditables.
+  // ===================================================================
+  function todayIso() {
+    return new Date().toISOString().slice(0, 10);
+  }
+  function isVencido(row) {
+    return row.estado === "Abierto" && !!row.fecha_comprometida && row.fecha_comprometida < todayIso();
+  }
+  function computeSemaforo(bitacoraRows) {
+    const rows = bitacoraRows || [];
+    const abiertos = rows.filter((r) => r.estado === "Abierto");
+    const vencidos = rows.filter(isVencido);
+    const porImpacto = { Alto: 0, Medio: 0, Bajo: 0 };
+    vencidos.forEach((r) => {
+      if (porImpacto[r.impacto] !== undefined) porImpacto[r.impacto]++;
+    });
+    const pctVencidos = abiertos.length ? vencidos.length / abiertos.length : 0;
+
+    let estado, estadoRegla;
+    if (porImpacto.Alto > 0) {
+      estado = "CRÍTICO";
+      estadoRegla = `Crítico: ${porImpacto.Alto} compromiso(s) de impacto Alto vencido(s) en la Bitácora.`;
+    } else if (pctVencidos > 0.3) {
+      estado = "CRÍTICO";
+      estadoRegla = `Crítico: ${pct(pctVencidos, 0)} de los compromisos abiertos están vencidos (umbral: 30%).`;
+    } else if (porImpacto.Medio > 0) {
+      estado = "EN RIESGO";
+      estadoRegla = `En riesgo: ${porImpacto.Medio} compromiso(s) de impacto Medio vencido(s) en la Bitácora.`;
+    } else {
+      estado = "NORMAL";
+      estadoRegla = "Normal: sin compromisos vencidos de impacto Alto o Medio, y menos del 30% de los abiertos vencidos.";
+    }
+    // Nota: el plan también propone comparar avance real vs. avance esperado
+    // según cronograma. No se implementa aquí porque el 94% de las actividades
+    // no tiene Fecha Fin Máxima real (son fechas correlativas de relleno, no
+    // una planificación) — ver Fase 3 del Plan de Trabajo. Agregar esa
+    // comparación ahora produciría el mismo tipo de dato falso que esta fase
+    // busca eliminar.
+
+    let plazos, plazosRegla;
+    if (porImpacto.Alto > 0) {
+      plazos = "Rojo";
+      plazosRegla = `Rojo: hay compromisos de impacto Alto vencidos (${porImpacto.Alto}).`;
+    } else if (vencidos.length > 0) {
+      plazos = "Amarillo";
+      plazosRegla = `Amarillo: hay ${vencidos.length} compromiso(s) vencido(s) (impacto Medio/Bajo).`;
+    } else {
+      plazos = "Verde";
+      plazosRegla = "Verde: no hay compromisos vencidos en la Bitácora.";
+    }
+
+    return {
+      estado, estadoRegla, plazos, plazosRegla,
+      vencidos, totalVencidos: vencidos.length,
+      vencidosAlto: porImpacto.Alto, vencidosMedio: porImpacto.Medio, vencidosBajo: porImpacto.Bajo,
+      totalAbiertos: abiertos.length, pctVencidos,
+    };
+  }
+
+  // ===================================================================
+  // Catálogo canónico de módulos y normalización defensiva — Plan de
+  // Trabajo Fase 1 (P1-01/P1-03, código). La hoja Bitácora del Excel
+  // escribe el módulo con variantes ("Autoatención" vs "AutoAtención",
+  // valores combinados como "autoatención, RAD") y algunos responsables
+  // llevan espacios finales que hacen que la misma persona se cuente dos
+  // veces ("Melany Orellana" vs "Melany Orellana "). Esto normaliza solo
+  // en el portal, para mostrar y agrupar de forma consistente — no toca
+  // el Excel maestro ni los datos de origen (ver "Regla de oro" del plan;
+  // los hallazgos que sí requieren corregirse en el Excel — catálogo
+  // formal, ids duplicados, criterios de QA faltantes — quedan listados
+  // aparte para seguimiento con el equipo funcional).
+  // ===================================================================
+  const CANONICAL_MODULOS = [
+    "AutoAtención", "Licencias Médicas", "FORCAP", "Calificaciones",
+    "RAD", "VALS", "Portal SIRH", "Observatorio",
+  ];
+  // clave sin tildes/mayúsculas → nombre canónico
+  const MODULO_ALIASES = {
+    "autoatencion": "AutoAtención",
+    "auto atencion": "AutoAtención",
+    "lm": "Licencias Médicas",
+    "licencias medicas": "Licencias Médicas",
+    "forcap": "FORCAP",
+    "calificaciones": "Calificaciones",
+    "rad": "RAD",
+    "vals": "VALS",
+    "portal sirh": "Portal SIRH",
+    "observatorio": "Observatorio",
+  };
+  function stripAccents(s) {
+    return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "");
+  }
+  function moduloKey(s) {
+    return stripAccents(String(s || "").trim().toLowerCase());
+  }
+  /** Normaliza un único nombre de módulo a su forma canónica. Si no se
+   *  reconoce, devuelve el texto original recortado — nunca se descarta
+   *  información por no encontrar coincidencia. */
+  function normalizeModulo(raw) {
+    const key = moduloKey(raw);
+    if (!key) return "";
+    return MODULO_ALIASES[key] || String(raw).trim();
+  }
+  /** Divide un campo de módulo potencialmente multivalor (p.ej.
+   *  "autoatención, RAD") en una lista de nombres canónicos sin duplicados. */
+  function moduloTokens(raw) {
+    if (!raw) return [];
+    return String(raw)
+      .split(/[,/]| y /i)
+      .map((p) => normalizeModulo(p))
+      .filter((n, i, arr) => n && arr.indexOf(n) === i);
+  }
+  /** Texto legible para mostrar un módulo (incluye el caso multivalor),
+   *  con nombres canónicos: "autoatención, RAD" → "AutoAtención, RAD". */
+  function moduloDisplay(raw) {
+    const tokens = moduloTokens(raw);
+    return tokens.length ? tokens.join(", ") : String(raw || "").trim();
+  }
+  /** ¿El campo de módulo (posiblemente multivalor) de una fila incluye el
+   *  módulo canónico dado? Reemplaza el matching por substring/lowercase
+   *  usado antes, que era frágil ante variantes no previstas. */
+  function moduloMatches(raw, modulo) {
+    return moduloTokens(raw).includes(modulo);
+  }
+  /** Normaliza un nombre de responsable: recorta espacios (incluidos los
+   *  finales que duplicaban el conteo de una misma persona) y prolija el
+   *  separador "/" en campos con varios responsables. No cambia nombres
+   *  reales, solo espacios en blanco. */
+  function normalizeResponsable(raw) {
+    return String(raw || "")
+      .replace(/\s*\/\s*/g, " / ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // ------------------------------------------------ banner global de cambios
+  // P0-04: visible en las 6 páginas (no solo en la página de la colección
+  // editada) cuando exista al menos una colección con cambios locales sin
+  // exportar. Lee localStorage directo (mismo formato que local-records.js)
+  // para no depender de que ese script esté cargado en páginas de solo
+  // lectura como Glosario o Componentes.
+  const EDITABLE_COLLECTIONS = [
+    { key: "bitacora", label: "Bitácora", href: "bitacora.html" },
+    { key: "etapas", label: "Etapas", href: "etapas.html" },
+    { key: "req_autoatencion", label: "Requerimientos · AutoAtención", href: "requerimientos.html?tab=autoatencion" },
+    { key: "req_rad", label: "Requerimientos · RAD", href: "requerimientos.html?tab=rad" },
+    { key: "req_lm", label: "Requerimientos · Licencias Médicas", href: "requerimientos.html?tab=lm" },
+    { key: "req_calificaciones", label: "Requerimientos · Calificaciones", href: "requerimientos.html?tab=calificaciones" },
+  ];
+  function readStoreDirtyCount(key) {
+    try {
+      const raw = localStorage.getItem("sm-store::" + key);
+      if (!raw) return 0;
+      const st = JSON.parse(raw);
+      return Object.keys(st.edits || {}).length + (st.additions || []).length + (st.deletions || []).length;
+    } catch (e) {
+      return 0;
+    }
+  }
+  function renderGlobalDirtyBanner() {
+    const dirty = EDITABLE_COLLECTIONS.map((c) => Object.assign({}, c, { count: readStoreDirtyCount(c.key) })).filter((c) => c.count > 0);
+    let el = document.querySelector(".global-dirty-banner");
+    if (!dirty.length) {
+      if (el) el.remove();
+      return;
+    }
+    if (!el) {
+      const header = document.querySelector(".app-header");
+      if (!header) return;
+      el = document.createElement("div");
+      el.className = "global-dirty-banner";
+      header.insertAdjacentElement("afterend", el);
+    }
+    el.innerHTML = `
+      <span class="global-dirty-banner__icon">${window.Icons ? window.Icons.svg("edit", { size: 15 }) : "✎"}</span>
+      <span>Tienes cambios locales sin exportar, guardados solo en <strong>este navegador</strong>:
+        ${dirty.map((c) => `<a href="${c.href}">${esc(c.label)} (${c.count})</a>`).join(", ")}.
+      </span>`;
+  }
+  function initGlobalDirtyBanner() {
+    renderGlobalDirtyBanner();
+    document.addEventListener("store:change", renderGlobalDirtyBanner);
+  }
+
   window.UI = {
     initTheme, initNav, pct, num, dateEs, esc,
     statusBadge, statusColor, showTip, hideTip, debounce,
     openModal, closeModal, confirmDelete, dirtyPillHtml, infoTip,
+    todayIso, isVencido, computeSemaforo, initGlobalDirtyBanner,
+    CANONICAL_MODULOS, normalizeModulo, moduloTokens, moduloDisplay, moduloMatches,
+    normalizeResponsable,
   };
 
   // -------------------------------------------------------- búsqueda global
@@ -320,9 +512,9 @@
       if (!title) return;
       idx.push({
         group: "Bitácora", icon: "briefcase", title: title.slice(0, 90),
-        sub: `${b.modulo || ""} · ${b.estado || ""} · ${dateEs(b.fecha_registro)}`,
+        sub: `${moduloDisplay(b.modulo)} · ${b.estado || ""} · ${dateEs(b.fecha_registro)}`,
         href: `bitacora.html?q=${encodeURIComponent((b.accion || b.descripcion || "").slice(0, 60))}`,
-        text: `${b.modulo} ${b.descripcion} ${b.accion} ${b.responsable}`.toLowerCase(),
+        text: `${moduloDisplay(b.modulo)} ${b.descripcion} ${b.accion} ${normalizeResponsable(b.responsable)}`.toLowerCase(),
       });
     });
     return idx;
@@ -441,5 +633,6 @@
     initNav();
     initGlobalSearch();
     initInfoTips();
+    initGlobalDirtyBanner();
   });
 })();

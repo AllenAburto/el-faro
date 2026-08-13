@@ -152,6 +152,9 @@
   const bitAbiertos = bitRows.filter((r) => r.estado === "Abierto").length;
   const bitCerrados = bitRows.filter((r) => r.estado === "Cerrado").length;
   const bitArchivados = bitRows.filter((r) => r.estado === "Archivado").length;
+  // sem: semáforo/vencidos calculado sobre los datos ya editados localmente
+  // (bitRows), reutilizado más abajo también para el hero — ver P0-01/P0-02.
+  const sem = UI.computeSemaforo(bitRows);
   document.getElementById("compromisosHint").textContent =
     `${UI.num(bitTotal)} registros · ${UI.pct(bitTotal ? bitCerrados / bitTotal : 0, 1)} cerrados`;
   document.getElementById("compromisosCards").innerHTML = [
@@ -159,18 +162,25 @@
     { icon: "refresh-cw", label: "Abiertos", value: UI.num(bitAbiertos), accent: "accent-warn" },
     { icon: "check-circle", label: "Cerrados", value: UI.num(bitCerrados), accent: "accent-good" },
     { icon: "archive", label: "Archivados", value: UI.num(bitArchivados), accent: "" },
+    {
+      icon: "alert-octagon", label: "Vencidos", value: UI.num(sem.totalVencidos),
+      accent: sem.vencidosAlto > 0 ? "accent-critical" : sem.totalVencidos > 0 ? "accent-warn" : "accent-good",
+      tip: `${sem.vencidosAlto} de impacto Alto · ${sem.vencidosMedio} Medio · ${sem.vencidosBajo} Bajo. Abiertos con Fecha Comprometida ya pasada.`,
+    },
   ]
     .map(
       (k) => `<div class="stat-tile ${k.accent ? "stat-tile--" + k.accent : ""}">
         <span class="stat-tile__icon">${Icons.svg(k.icon, { size: 18 })}</span>
-        <span class="stat-tile__label">${k.label}</span>
+        <span class="stat-tile__label">${k.label}${k.tip ? UI.infoTip(k.tip) : ""}</span>
         <span class="stat-tile__value">${k.value}</span>
       </div>`
     )
     .join("");
-  const BIT_MODULOS = ["Autoatención", "RAD", "VALS", "Portal SIRH", "FORCAP"];
+  // Módulos que registran compromisos en la Bitácora (subconjunto del
+  // catálogo canónico — ver UI.CANONICAL_MODULOS / UI.moduloMatches en common.js).
+  const BIT_MODULOS = ["AutoAtención", "RAD", "VALS", "Portal SIRH", "FORCAP"];
   const compModRows = BIT_MODULOS.map((m) => {
-    const rs = bitRows.filter((r) => (r.modulo || "").toLowerCase().includes(m.toLowerCase()));
+    const rs = bitRows.filter((r) => UI.moduloMatches(r.modulo, m));
     return {
       label: m,
       total: rs.length,
@@ -189,23 +199,28 @@
 
   // =========================================================== hero (arriba)
   // Se arma al final porque reutiliza valores ya calculados más arriba
-  // (meta, avReq, bitTotal/bitAbiertos) — el orden de ejecución no afecta
-  // el resultado visual, solo el orden en que se completan los <div>.
+  // (meta, avReq, bitTotal/bitAbiertos, sem) — el orden de ejecución no
+  // afecta el resultado visual, solo el orden en que se completan los <div>.
+  //
+  // Plan de Trabajo — Fase 0 (P0-01): Estado general y Plazos ya NO se leen
+  // del Excel (venían fijos en "NORMAL"/"Verde" sin relación con la realidad
+  // de la Bitácora) — se recalculan en `sem` (más arriba) contra la fecha
+  // del sistema. Ver UI.computeSemaforo en common.js para las reglas.
   const ESTADO_COLOR = { NORMAL: "var(--status-good)", "EN RIESGO": "var(--status-warning)", "CRÍTICO": "var(--status-critical)" };
   const PLAZOS_INFO = {
     Verde: { icon: "check-circle", color: "var(--status-good)" },
     Amarillo: { icon: "alert-triangle", color: "var(--status-warning)" },
     Rojo: { icon: "alert-circle", color: "var(--status-critical)" },
   };
-  const plazosInfo = PLAZOS_INFO[meta.plazos] || PLAZOS_INFO.Verde;
-  const estadoColor = ESTADO_COLOR[meta.estado_general] || "#fff";
+  const plazosInfo = PLAZOS_INFO[sem.plazos] || PLAZOS_INFO.Verde;
+  const estadoColor = ESTADO_COLOR[sem.estado] || "#fff";
 
   document.getElementById("heroStatus").innerHTML = [
-    { icon: "activity", label: `Estado general: ${meta.estado_general}`, color: estadoColor },
-    { icon: plazosInfo.icon, label: `Plazos: ${meta.plazos}`, color: plazosInfo.color },
+    { icon: "activity", label: `Estado general: ${sem.estado}`, color: estadoColor, tip: sem.estadoRegla },
+    { icon: plazosInfo.icon, label: `Plazos: ${sem.plazos}`, color: plazosInfo.color, tip: sem.plazosRegla },
   ]
     .map(
-      (c) => `<span class="hero__chip"><span style="color:${c.color};display:flex">${Icons.svg(c.icon, { size: 15 })}</span>${UI.esc(c.label)}</span>`
+      (c) => `<span class="hero__chip" title="${UI.esc(c.tip)}"><span style="color:${c.color};display:flex">${Icons.svg(c.icon, { size: 15 })}</span>${UI.esc(c.label)}</span>`
     )
     .join("");
 
@@ -227,15 +242,18 @@
       sub: `${UI.pct(meta.total ? finalizadasTotal / meta.total : 0, 1)} del cronograma`,
     },
     {
-      icon: "alert-circle", label: "Compromisos pendientes",
-      value: UI.num(bitAbiertos),
-      sub: `de ${UI.num(bitTotal)} registrados en Bitácora`,
-      tip: "Registros de la Bitácora (reuniones, correos, acuerdos) en estado \"Abierto\", es decir, aún sin cerrar.",
+      // P0-02: reemplaza "Compromisos pendientes" (todos los abiertos) por
+      // "Compromisos vencidos" (los que ya pasaron su fecha comprometida),
+      // que es la señal accionable, con desglose por impacto.
+      icon: "alert-octagon", label: "Compromisos vencidos", accent: sem.vencidosAlto > 0 ? "critical" : sem.totalVencidos > 0 ? "warning" : "good",
+      value: UI.num(sem.totalVencidos),
+      sub: `de ${UI.num(sem.totalAbiertos)} abiertos · ${sem.vencidosAlto} Alto · ${sem.vencidosMedio} Medio · ${sem.vencidosBajo} Bajo`,
+      tip: "Registros de la Bitácora en estado \"Abierto\" cuya Fecha Comprometida ya pasó respecto de hoy.",
     },
   ];
   document.getElementById("heroKpis").innerHTML = heroKpis
     .map(
-      (k) => `<div class="hero-kpi">
+      (k) => `<div class="hero-kpi${k.accent ? " hero-kpi--" + k.accent : ""}">
         <div class="hero-kpi__icon">${Icons.svg(k.icon, { size: 18 })}</div>
         <div class="hero-kpi__value">${k.value}</div>
         <div class="hero-kpi__label">${UI.esc(k.label)}${k.tip ? UI.infoTip(k.tip) : ""}</div>
