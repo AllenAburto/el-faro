@@ -10,7 +10,7 @@
 
   // pre-filtro desde la búsqueda global (?q=)
   const urlParams = new URLSearchParams(location.search);
-  let state = { search: urlParams.get("q") || "", modulo: "", estado: "", impacto: "", page: 1 };
+  let state = { search: urlParams.get("q") || "", modulo: "", estado: "", impacto: "", soloVencidos: false, page: 1 };
 
   function liveData() {
     return Store.list(STORE_KEY, D.bitacora, "id");
@@ -27,6 +27,7 @@
     const cerrados = rows.filter((r) => r.estado === "Cerrado").length;
     const archivados = rows.filter((r) => r.estado === "Archivado").length;
     const pctAvance = total ? cerrados / total : 0;
+    const sem = UI.computeSemaforo(rows);
     document.getElementById("bitSummary").innerHTML = `
       <div class="stat-tile stat-tile--accent-1">
         <span class="stat-tile__icon">📋</span>
@@ -48,6 +49,11 @@
         <span class="stat-tile__icon">📦</span>
         <span class="stat-tile__label">Archivados</span>
         <span class="stat-tile__value">${UI.num(archivados)}</span>
+      </div>
+      <div class="stat-tile ${sem.vencidosAlto > 0 ? "stat-tile--accent-critical" : sem.totalVencidos > 0 ? "stat-tile--accent-warn" : "stat-tile--accent-good"}">
+        <span class="stat-tile__icon">🚨</span>
+        <span class="stat-tile__label">Vencidos${UI.infoTip(`${sem.vencidosAlto} de impacto Alto · ${sem.vencidosMedio} Medio · ${sem.vencidosBajo} Bajo. Abiertos con Fecha Comprometida ya pasada.`)}</span>
+        <span class="stat-tile__value">${UI.num(sem.totalVencidos)}</span>
       </div>`;
 
     const modRows = MODULOS.map((m) => {
@@ -89,6 +95,7 @@
       if (state.modulo && !matchesModulo(r, state.modulo)) return false;
       if (state.estado && r.estado !== state.estado) return false;
       if (state.impacto && r.impacto !== state.impacto) return false;
+      if (state.soloVencidos && !UI.isVencido(r)) return false;
       if (s) {
         const hay = [r.descripcion, r.accion, r.responsable, r.observaciones, r.componente]
           .filter(Boolean).join(" ").toLowerCase();
@@ -176,14 +183,15 @@
       tbody.innerHTML = pageRows
         .map((r) => {
           const descAccion = [r.descripcion, r.accion ? `<em>${UI.esc(r.accion)}</em>` : ""].filter(Boolean).join("<br>");
-          return `<tr>
+          const vencido = UI.isVencido(r);
+          return `<tr class="${vencido ? "row-vencido" : ""}">
             <td class="col-num cell-muted">${r.n ?? ""}${r._local ? '<span class="badge-local">local</span>' : r._edited ? '<span class="badge-local">editado</span>' : ""}</td>
             <td class="nowrap cell-muted">${UI.dateEs(r.fecha_registro)}</td>
             <td class="nowrap strong">${UI.esc(r.modulo)}</td>
             <td style="max-width:300px">${UI.esc(r.descripcion || "")}${r.accion ? `<div class="text-muted" style="margin-top:3px;font-size:12px">↳ ${UI.esc(r.accion)}</div>` : ""}</td>
             <td class="nowrap">${UI.esc(r.responsable || "")}</td>
             <td>${r.impacto ? UI.statusBadge(r.impacto) : '<span class="cell-muted">—</span>'}</td>
-            <td class="nowrap cell-muted">${UI.dateEs(r.fecha_comprometida)}</td>
+            <td class="nowrap cell-muted col-fecha-comprometida">${UI.dateEs(r.fecha_comprometida)}${vencido ? '<span class="badge-vencido">VENCIDO</span>' : ""}</td>
             <td>${UI.statusBadge(r.estado)}</td>
             <td class="row-actions">
               <button class="btn-icon" title="Editar" data-edit="${UI.esc(r.id)}">✎</button>
@@ -241,9 +249,15 @@
       render();
     });
   });
+  document.getElementById("bSoloVencidos").addEventListener("change", (e) => {
+    state.soloVencidos = e.target.checked;
+    state.page = 1;
+    render();
+  });
   document.getElementById("bReset").addEventListener("click", () => {
-    state = { search: "", modulo: "", estado: "", impacto: "", page: 1 };
+    state = { search: "", modulo: "", estado: "", impacto: "", soloVencidos: false, page: 1 };
     document.getElementById("bSearch").value = "";
+    document.getElementById("bSoloVencidos").checked = false;
     render();
   });
   document.getElementById("bitNewBtn").addEventListener("click", openNewModal);

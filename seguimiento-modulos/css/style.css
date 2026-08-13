@@ -366,6 +366,11 @@ a { color: var(--series-1); }
 .hero-kpi__label .info-tip { color: rgba(255,255,255,0.55); margin-left: 2px; }
 .hero-kpi__label .info-tip:hover, .hero-kpi__label .info-tip:focus-visible { color: #fff; }
 .hero-kpi__sub { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 2px; }
+.hero-kpi--critical { border-color: color-mix(in srgb, var(--status-critical) 55%, transparent); }
+.hero-kpi--critical .hero-kpi__icon { background: color-mix(in srgb, var(--status-critical) 45%, transparent); color: #fff; }
+.hero-kpi--critical .hero-kpi__value { color: #ffb3b3; }
+.hero-kpi--warning .hero-kpi__icon { background: color-mix(in srgb, var(--status-warning) 45%, transparent); color: #fff; }
+.hero-kpi--good .hero-kpi__icon { background: color-mix(in srgb, var(--status-good) 45%, transparent); color: #fff; }
 @media (max-width: 980px) { .hero__grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .hero__grid { grid-template-columns: 1fr; } }
 
@@ -708,6 +713,18 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
 }
 .filters input[type="search"] { min-width: 220px; flex: 1; }
 .filters select { cursor: pointer; }
+.check-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px 4px;
+  white-space: nowrap;
+}
+.check-toggle input { accent-color: var(--status-critical); width: 15px; height: 15px; cursor: pointer; }
 .filters .count-pill {
   font-size: 12px;
   color: var(--text-muted);
@@ -949,6 +966,18 @@ table.data-table tbody tr:last-child td { border-bottom: none; }
   padding: 0 4px;
   vertical-align: middle;
 }
+.badge-vencido {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--status-critical);
+  border-radius: 4px;
+  padding: 1px 5px;
+  vertical-align: middle;
+}
+tr.row-vencido td.col-fecha-comprometida { color: var(--status-critical); font-weight: 700; }
 
 /* ------------------------------------------------------------------ modal */
 .modal-overlay {
@@ -1079,3 +1108,26 @@ details.accordion > .accordion__body {
   height: 1px;
   background: var(--gridline);
 }
+
+/* ------------------------------------------------------- global-dirty-banner
+   P0-04 del Plan de Trabajo: aviso permanente, visible en las 6 páginas,
+   de que existen cambios locales (localStorage) sin exportar en cualquier
+   colección — no solo en la página donde se editó. */
+.global-dirty-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: color-mix(in srgb, var(--status-warning) 16%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--status-warning) 40%, transparent);
+  color: #6b4a00;
+  font-size: 13px;
+  padding: 8px 20px;
+}
+.global-dirty-banner__icon { flex: none; display: flex; }
+.global-dirty-banner a { color: inherit; font-weight: 700; text-decoration: underline; }
+:root[data-theme="dark"] .global-dirty-banner,
+:root:where(:not([data-theme="light"])) .global-dirty-banner { color: #ffd166; }
+
+.grid-5 { grid-template-columns: repeat(5, 1fr); }
+@media (max-width: 980px) { .grid-5 { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 620px) { .grid-5 { grid-template-columns: 1fr; } }

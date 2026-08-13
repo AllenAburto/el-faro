@@ -263,10 +263,124 @@
     });
   }
 
+  // ===================================================================
+  // Semáforo real — Plan de Trabajo Fase 0 (P0-01/P0-02)
+  // Se recalcula en cada render contra la fecha del sistema, en vez de
+  // leer un valor congelado del Excel (que hoy dice "NORMAL"/"Verde" sin
+  // relación con los compromisos vencidos). Reglas explícitas y visibles
+  // en el tooltip de cada chip del hero, para que sean auditables.
+  // ===================================================================
+  function todayIso() {
+    return new Date().toISOString().slice(0, 10);
+  }
+  function isVencido(row) {
+    return row.estado === "Abierto" && !!row.fecha_comprometida && row.fecha_comprometida < todayIso();
+  }
+  function computeSemaforo(bitacoraRows) {
+    const rows = bitacoraRows || [];
+    const abiertos = rows.filter((r) => r.estado === "Abierto");
+    const vencidos = rows.filter(isVencido);
+    const porImpacto = { Alto: 0, Medio: 0, Bajo: 0 };
+    vencidos.forEach((r) => {
+      if (porImpacto[r.impacto] !== undefined) porImpacto[r.impacto]++;
+    });
+    const pctVencidos = abiertos.length ? vencidos.length / abiertos.length : 0;
+
+    let estado, estadoRegla;
+    if (porImpacto.Alto > 0) {
+      estado = "CRÍTICO";
+      estadoRegla = `Crítico: ${porImpacto.Alto} compromiso(s) de impacto Alto vencido(s) en la Bitácora.`;
+    } else if (pctVencidos > 0.3) {
+      estado = "CRÍTICO";
+      estadoRegla = `Crítico: ${pct(pctVencidos, 0)} de los compromisos abiertos están vencidos (umbral: 30%).`;
+    } else if (porImpacto.Medio > 0) {
+      estado = "EN RIESGO";
+      estadoRegla = `En riesgo: ${porImpacto.Medio} compromiso(s) de impacto Medio vencido(s) en la Bitácora.`;
+    } else {
+      estado = "NORMAL";
+      estadoRegla = "Normal: sin compromisos vencidos de impacto Alto o Medio, y menos del 30% de los abiertos vencidos.";
+    }
+    // Nota: el plan también propone comparar avance real vs. avance esperado
+    // según cronograma. No se implementa aquí porque el 94% de las actividades
+    // no tiene Fecha Fin Máxima real (son fechas correlativas de relleno, no
+    // una planificación) — ver Fase 3 del Plan de Trabajo. Agregar esa
+    // comparación ahora produciría el mismo tipo de dato falso que esta fase
+    // busca eliminar.
+
+    let plazos, plazosRegla;
+    if (porImpacto.Alto > 0) {
+      plazos = "Rojo";
+      plazosRegla = `Rojo: hay compromisos de impacto Alto vencidos (${porImpacto.Alto}).`;
+    } else if (vencidos.length > 0) {
+      plazos = "Amarillo";
+      plazosRegla = `Amarillo: hay ${vencidos.length} compromiso(s) vencido(s) (impacto Medio/Bajo).`;
+    } else {
+      plazos = "Verde";
+      plazosRegla = "Verde: no hay compromisos vencidos en la Bitácora.";
+    }
+
+    return {
+      estado, estadoRegla, plazos, plazosRegla,
+      vencidos, totalVencidos: vencidos.length,
+      vencidosAlto: porImpacto.Alto, vencidosMedio: porImpacto.Medio, vencidosBajo: porImpacto.Bajo,
+      totalAbiertos: abiertos.length, pctVencidos,
+    };
+  }
+
+  // ------------------------------------------------ banner global de cambios
+  // P0-04: visible en las 6 páginas (no solo en la página de la colección
+  // editada) cuando exista al menos una colección con cambios locales sin
+  // exportar. Lee localStorage directo (mismo formato que local-records.js)
+  // para no depender de que ese script esté cargado en páginas de solo
+  // lectura como Glosario o Componentes.
+  const EDITABLE_COLLECTIONS = [
+    { key: "bitacora", label: "Bitácora", href: "bitacora.html" },
+    { key: "etapas", label: "Etapas", href: "etapas.html" },
+    { key: "req_autoatencion", label: "Requerimientos · AutoAtención", href: "requerimientos.html?tab=autoatencion" },
+    { key: "req_rad", label: "Requerimientos · RAD", href: "requerimientos.html?tab=rad" },
+    { key: "req_lm", label: "Requerimientos · Licencias Médicas", href: "requerimientos.html?tab=lm" },
+    { key: "req_calificaciones", label: "Requerimientos · Calificaciones", href: "requerimientos.html?tab=calificaciones" },
+  ];
+  function readStoreDirtyCount(key) {
+    try {
+      const raw = localStorage.getItem("sm-store::" + key);
+      if (!raw) return 0;
+      const st = JSON.parse(raw);
+      return Object.keys(st.edits || {}).length + (st.additions || []).length + (st.deletions || []).length;
+    } catch (e) {
+      return 0;
+    }
+  }
+  function renderGlobalDirtyBanner() {
+    const dirty = EDITABLE_COLLECTIONS.map((c) => Object.assign({}, c, { count: readStoreDirtyCount(c.key) })).filter((c) => c.count > 0);
+    let el = document.querySelector(".global-dirty-banner");
+    if (!dirty.length) {
+      if (el) el.remove();
+      return;
+    }
+    if (!el) {
+      const header = document.querySelector(".app-header");
+      if (!header) return;
+      el = document.createElement("div");
+      el.className = "global-dirty-banner";
+      header.insertAdjacentElement("afterend", el);
+    }
+    el.innerHTML = `
+      <span class="global-dirty-banner__icon">${window.Icons ? window.Icons.svg("edit", { size: 15 }) : "✎"}</span>
+      <span>Tienes cambios locales sin exportar, guardados solo en <strong>este navegador</strong>:
+        ${dirty.map((c) => `<a href="${c.href}">${esc(c.label)} (${c.count})</a>`).join(", ")}.
+      </span>`;
+  }
+  function initGlobalDirtyBanner() {
+    renderGlobalDirtyBanner();
+    document.addEventListener("store:change", renderGlobalDirtyBanner);
+  }
+
   window.UI = {
     initTheme, initNav, pct, num, dateEs, esc,
     statusBadge, statusColor, showTip, hideTip, debounce,
     openModal, closeModal, confirmDelete, dirtyPillHtml, infoTip,
+    todayIso, isVencido, computeSemaforo, initGlobalDirtyBanner,
   };
 
   // -------------------------------------------------------- búsqueda global
@@ -441,5 +555,6 @@
     initNav();
     initGlobalSearch();
     initInfoTips();
+    initGlobalDirtyBanner();
   });
 })();
