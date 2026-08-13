@@ -269,6 +269,7 @@
     document.getElementById("rPagination").style.display = tab.empty ? "none" : "";
     document.getElementById("rCount").textContent = tab.empty ? `${tab.note}` : "";
     document.getElementById("rDirtyPill").innerHTML = tab.editable ? UI.dirtyPillHtml(Store.counts(tab.storeKey)) : "";
+    document.getElementById("rExportBtn").style.display = tab.editable ? "" : "none";
     document.getElementById("rResetBtn").style.display = tab.editable ? "" : "none";
 
     if (tab.empty) return;
@@ -370,6 +371,11 @@
   document.getElementById("rNewBtn").addEventListener("click", () => {
     const tab = currentTab();
     if (tab.editable) openNewModal(tab);
+  });
+  document.getElementById("rExportBtn").addEventListener("click", () => {
+    const tab = currentTab();
+    if (!tab.editable) return;
+    Store.exportChanges(tab.storeKey, `requerimientos_${tab.id}_cambios.json`);
   });
   document.getElementById("rResetBtn").addEventListener("click", () => {
     const tab = currentTab();
