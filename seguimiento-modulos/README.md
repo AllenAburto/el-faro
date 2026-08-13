@@ -184,6 +184,40 @@ del portal, y requieren que alguien con el contexto funcional decida
 cómo corregirlos (no son ambigüedades que el código pueda resolver por
 su cuenta sin inventar datos).
 
+### P3-02 — cerrado: el campo "Anterior" no es una dependencia por actividad
+
+El plan proponía convertir el campo `Anterior` de la hoja Etapas (texto
+libre) en una referencia real a otra actividad, para poder mostrar
+dependencias entre tareas. Se investigó y **no es posible con los datos
+actuales**, por una razón estructural, no de formato: `Anterior` no
+varía por actividad — toma exactamente el mismo valor para las 28-42
+filas de cada una de las 10 etapas (verificado programáticamente sobre
+las 294 filas). Es decir, no es "la actividad anterior a esta", es el
+**nombre antiguo de la etapa completa**, de una nomenclatura de proyecto
+previa a la actual:
+
+| Etapa actual | Valor de "Anterior" (nombre legado) |
+|---|---|
+| 1. Preparación | Constitución Equipo de Trabajo |
+| 2. Definición Funcional | Levantamiento y definición |
+| 3. Diseño | Análisis y Diseño |
+| 4. Planificación | Planificación |
+| 5. Construcción | Construcción |
+| 6. Validación | Certificación |
+| 7. Aseguramiento | Seguridad e Infraestructura |
+| 8. Adopción | Despliegue y Gestión del Cambio |
+| 9. Operación | Producción |
+| 10. Mejora Continua | Evaluación y Mejora Continua |
+
+No hay grafo de dependencias que extraer de aquí — construir una función
+de "predecesor" sobre este campo produciría una relación inventada, no
+una real. El campo ya se usa (correctamente) solo como texto adicional
+en el buscador de Etapas (`js/etapas.js`, `applyFilters`), donde el
+nombre legado ayuda a encontrar una etapa por su nombre viejo. Si en
+algún momento se necesita una dependencia real entre actividades, tendría
+que agregarse como columna nueva en el Excel — no se puede derivar de lo
+que existe hoy.
+
 ## 9. Convenciones del código
 
 - **Sin build step, sin dependencias externas** — todo el JS es vanilla,

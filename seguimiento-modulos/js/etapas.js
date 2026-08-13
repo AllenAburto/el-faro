@@ -94,6 +94,12 @@
       if (state.estado && r["Estado"] !== state.estado) return false;
       if (state.responsable && r["Responsable"] !== state.responsable) return false;
       if (s) {
+        // "Anterior" (P3-02, investigado — ver README.md § 8) NO es una
+        // dependencia por actividad: toma el mismo valor para todas las
+        // filas de una misma Etapa. Es el nombre legado de la etapa
+        // completa, no de "la tarea anterior a esta" — se incluye aquí
+        // solo para que el buscador también encuentre filas por ese
+        // nombre viejo, nunca para construir un grafo de dependencias.
         const hay = [
           r["Actividades/Tarea"], r["Componente/Subetapa"], r["Productos/Entregables"],
           r["Anterior"], r["Objetivo"], r["Criterios de Cumplimiento"], r["Módulo"],
