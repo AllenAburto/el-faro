@@ -143,9 +143,18 @@
 
   function exportChanges(key, filename) {
     const st = loadRaw(key);
+    const meta = (window.APP_DATA && window.APP_DATA.dashboard_meta) || {};
     const payload = {
       coleccion: key,
       exportado: new Date().toISOString(),
+      // P2-06 (Plan de Trabajo Fase 2): fecha de la versión del Excel
+      // maestro sobre la que se hicieron estos cambios (el mismo
+      // "actualizado" que estampa scripts/extract.py en cada build). Sirve
+      // para detectar exports desactualizados — si quien recibe este
+      // archivo ve una fecha distinta a la del Excel vigente, es señal de
+      // que el maestro cambió desde entonces y conviene revisar los ids de
+      // fila a mano antes de aplicar los cambios, en vez de pisarlos a ciegas.
+      version_datos: meta.actualizado || null,
       ediciones: st.edits,
       altas: st.additions,
       eliminaciones: st.deletions,
