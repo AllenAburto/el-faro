@@ -151,6 +151,20 @@
     const figure = el("div", "donut-figure");
     figure.style.width = size + "px";
     figure.style.height = size + "px";
+    // P5-02 (Plan de Trabajo Fase 5, parcial): la dona es un <svg> puro sin
+    // texto — sin esto, un lector de pantalla la anuncia vacía. El resumen
+    // en texto plano (mismos números que la leyenda de abajo) le da una
+    // sola frase con el contenido, sin duplicar visualmente nada.
+    const summary = segments
+      .filter((seg) => seg.value)
+      .map((seg) => `${seg.name}: ${seg.value} (${UI.pct(seg.value / total, 1)})`)
+      .join(", ");
+    figure.setAttribute("role", "img");
+    figure.setAttribute(
+      "aria-label",
+      `Gráfico circular${opts.centerLabel ? " de " + opts.centerLabel : ""}, total ${total}. ${summary}.`
+    );
+    svg.setAttribute("aria-hidden", "true");
     figure.appendChild(svg);
     if (opts.centerValue !== undefined) {
       const center = el(
