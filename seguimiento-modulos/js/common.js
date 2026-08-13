@@ -44,7 +44,13 @@
     const path = location.pathname.split("/").pop() || "index.html";
     document.querySelectorAll(".app-nav a").forEach((a) => {
       const href = a.getAttribute("href");
-      if (href === path) a.classList.add("active");
+      if (href === path) {
+        a.classList.add("active");
+        // P5-04 (Plan de Trabajo Fase 5): además del estilo visual, marca
+        // la página actual para lectores de pantalla y otras tecnologías
+        // de asistencia (equivalente accesible del subrayado activo).
+        a.setAttribute("aria-current", "page");
+      }
     });
   }
 
@@ -644,9 +650,15 @@
       const overlay = document.getElementById("globalSearchOverlay");
       if (overlay && !overlay.hidden && e.key === "Escape") closeSearch();
     });
+    // P5-01 (Plan de Trabajo Fase 5): antes se filtraba y volvía a pintar
+    // la lista de resultados en cada tecla presionada. Con debounce se
+    // espera una pausa breve antes de filtrar/renderizar — menos trabajo
+    // de DOM mientras la persona todavía está escribiendo, sin cambiar el
+    // comportamiento percibido (120ms es imperceptible al tipear).
+    const debouncedSearch = debounce((value) => renderSearchResults(value), 120);
     document.addEventListener("input", (e) => {
       if (e.target && e.target.id === "globalSearchInput") {
-        renderSearchResults(e.target.value);
+        debouncedSearch(e.target.value);
       }
     });
     document.addEventListener("keydown", (e) => {
